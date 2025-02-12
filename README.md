@@ -3,11 +3,11 @@
 ## Best Practices
 1. **NEVER directly edit main, no matter what**
 2. **ALWAYS create a different branch when working on a task (I use [name]/[branch name] for a naming scheme**\
-     -ex) ethan/loginbackend
+   -ex) ethan/loginbackend
 3. **ALWAYS create a pull request so that we can review your code before sending it to production**\
-   
+
 If you are not sure 100% about something, don't be afraid to ask questions in the discord
-   -
+-
 
 ### Project Dependencies
 
@@ -37,9 +37,9 @@ If you are not sure 100% about something, don't be afraid to ask questions in th
 3. Clone repo ([Directions](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository))
 4. [Download npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 5. run the following in ORDER!!\
-         -``` npm install -r ``` (To install all dependencies)\
-         -``` npm run db:generate ``` (To generate the prisma client)\
-         -```cp .env.example .env``` (To create the environment file)
+   -``` npm install -r ``` (To install all dependencies)\
+   -``` npm run db:generate ``` (To generate the prisma client)\
+   -```cp .env.example .env``` (To create the environment file)
 6. populate the .env file with the enviroment variables from vercel
 
 ### Useful Commands
