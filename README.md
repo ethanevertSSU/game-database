@@ -37,16 +37,16 @@ If you are not sure 100% about something, don't be afraid to ask questions in th
 3. Clone repo ([Directions](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository))
 4. [Download npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 5. run the following in ORDER!!\
-   -``` npm install -r ``` (To install all dependencies)\
-   -``` npm run db:generate ``` (To generate the prisma client)\
+   -``` npm install ``` (To install all dependencies)\
+   -``` npm run db:generate ``` (To generate the prisma client) {NOT IMPLEMENTED YET}\ 
    -```cp .env.example .env``` (To create the environment file)
 6. populate the .env file with the enviroment variables from vercel
 
 ### Useful Commands
 
 #### npm commands
-1. ```npm run dev``` (starts the developement server so you can track your changes in (pretty much) real time)
-2. ```npm run clean:workspaces``` (deletes all node modules in your local enviroment, useful for troubleshooting local setup issues)
+1. ```npm run dev``` (starts the development server so you can track your changes in (pretty much) real time)
+2. ```npm run clean``` (deletes all node modules in your local environment, useful for troubleshooting local setup issues)
 3. ```npm install [library]``` (installs library with given library name)
 
 #### database commands
