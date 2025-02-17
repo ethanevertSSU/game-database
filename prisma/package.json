@@ -1,0 +1,25 @@
+{
+  "name": "game-database",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "db:seed": "npm with-env prisma db seed",
+    "db:generate": "pnpm with-env prisma generate",
+    "db:push": "npm with-env prisma db push --skip-generate",
+    "db:pull": "npm with-env prisma db pull",
+    "dev": "npm run db:generate",
+    "db:lint": "npm with-env prisma format",
+    "db:migrate": "npm with-env prisma migrate deploy",
+    "db:migrate:createonly": "prisma migrate dev --create-only",
+    "db:migrate:dev": "pnpm with-env prisma migrate dev",
+    "db:migrate:reset": "pnpm with-env prisma migrate reset"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.3.1",
+    "@prisma/extension-accelerate": "^1.2.1"
+  },
+  "devDependencies": {
+    "prisma": "^6.3.1",
+    "typescript": "^5.4.5"
+  }
+}
