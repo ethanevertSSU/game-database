@@ -3,7 +3,7 @@ import {steamLogo} from "../../public/steam";
 
 export default function Home() {
     return (
-        <div className=" bg-purple-200 h-screen grid grid-rows-[auto_1fr_auto] gap-y-36">
+        <div className=" bg-purple-400 h-screen grid grid-rows-[auto_1fr_auto] gap-y-36">
             {/* Header */}
             <header>
                 <Header/>

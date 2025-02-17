@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Header from "@/components/Header";
 
 
 export default function Login(){
@@ -35,43 +36,43 @@ export default function Login(){
 
     }
 
-    console.log("Username:", username);
-    console.log("Password:", password);
-
-
 
     return (
+        <div className="flex flex-col gap-3 h-screen items-center justify-center bg-purple-400">
+                <Header />
+                <form onSubmit={handleSubmit}
+                      className="flex flex-col gap-3 h-screen items-center justify-center bg-purple-400">
+                    <input
+                        className="border-2 rounded px-3 py-2 text-black"
+                        type="text"
+                        placeholder={"username"}
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                    />
+                    <input
+                        className="border-2 rounded px-3 py-2 text-black"
+                        type="password"
+                        placeholder={"password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <input
+                        className="border-2 rounded px-3 py-2 text-black"
+                        type="password"
+                        placeholder={"re-type password"}
+                        value={retype}
+                        onChange={(e) => setRetype(e.target.value)}
+                    />
+                    {error && <p className="text-red-500">{error}</p>}
+                    <button className="border-2 rounded px-4 py-2 bg-purple-200 hover:bg-purple-600 text-black">
+                        Sign Up
+                    </button>
+                    <span className="text-sm/2">Already Registered? <Link
+                        className="visited:text-purple-600 hover:underline hover:text-blue-600"
+                        href="/Login">Login</Link></span>
+                </form>
+        </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-2.5 h-screen place-items-center justify-center">
-            <input
-                className="border-2 rounded"
-                type="text"
-                placeholder={"username"}
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-            />
-            <input
-                className="border-2 rounded "
-                type="password"
-                placeholder={"password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
-            <input
-                className="border-2 rounded "
-                type="password"
-                placeholder={"re-type password"}
-                value={retype}
-                onChange={(e) => setRetype(e.target.value)}
-            />
-            {error && <p className="text-red-500">{error}</p>}
-            <button className="border-2 rounded" type="submit">
-                Sign Up
-            </button>
-            <span className="text-sm/6">Already Registered? <Link className="hover:underline hover:text-blue-400"
-                                                                  href="/Login">Login</Link></span>
-        </form>
 
-
-    )
+)
 }

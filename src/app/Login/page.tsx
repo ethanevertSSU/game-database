@@ -4,6 +4,7 @@ import React, { useState } from "react";
 // Next.js 13+ (App Router) import:
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Header from "@/components/Header";
 
 // If you're on Next.js 12 (Pages Router), you'd do:
 // import { useRouter } from "next/router";
@@ -25,7 +26,6 @@ export default function Login() {
         }
         setError(""); // clear any previous error
 
-        try {
             // Send credentials to your Next.js API route.
             // This route should handle checking the DB via Prisma.
             const response = await fetch("/api/login", {
@@ -43,43 +43,44 @@ export default function Login() {
 
             // If successful, you can navigate to a home or dashboard page
             router.push("/");
-        } catch (err: any) {
-            console.error("Login error:", err);
-            setError("Something went wrong. Please try again.");
-        }
     };
 
     return (
-        <form
-            onSubmit={handleSubmit}
-            className="flex flex-col gap-3 h-screen items-center justify-center"
-        >
-            <input
-                className="border-2 rounded px-3 py-2 text-blue-600"
-                type="text"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-            />
+        <div className="flex flex-col gap-3 h-screen items-center justify-center bg-purple-400">
+            <Header/>
+            <form
+                onSubmit={handleSubmit}
+                className="flex flex-col gap-3 h-screen items-center justify-center bg-purple-400"
+            >
+                <input
+                    className="border-2 rounded px-3 py-2 text-black"
+                    type="text"
+                    placeholder="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                />
 
-            <input
-                className="border-2 rounded px-3 py-2 text-blue-600"
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
+                <input
+                    className="border-2 rounded px-3 py-2 text-black"
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
 
-            {error && <p className="text-red-500">{error}</p>}
+                {error && <p className="text-red-600">{error}</p>}
 
-            <button type="submit" className="border-2 rounded px-4 py-2 bg-blue-600 text-black">
-                Login
-            </button>
+                <button type="submit"
+                        className="border-2 rounded px-4 py-2 bg-purple-200 hover:bg-purple-600 text-black">
+                    Login
+                </button>
 
-        <button>
-    <span className="text-sm/6">Need to sign up? <Link className="hover:underline hover:text-blue-400"
-                                                          href="/Signup">Signup</Link></span>
-        </button>
-        </form>
-    );
-}
+                <button>
+    <span className="text-sm/2">Need to sign up? <Link
+        className="visited:text-purple-600 hover:underline hover:text-blue-600"
+        href="/Signup">Sign Up</Link></span>
+                </button>
+            </form>
+        </div>
+            );
+            }
