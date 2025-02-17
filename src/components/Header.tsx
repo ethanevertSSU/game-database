@@ -1,4 +1,3 @@
-import * as React from "react";
 import Link from "next/link";
 
 export default function Header() {
@@ -7,7 +6,7 @@ export default function Header() {
             <Link
                 href="/"
                 className="font-bold text-xl">
-                Jebb's Game Database
+                JEBBS Game Database
             </Link>
             <div className="flex space-x-4">
                 <Link

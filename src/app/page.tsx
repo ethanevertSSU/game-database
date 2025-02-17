@@ -13,7 +13,7 @@ export default function Home() {
             <div className="place-items-center">
             <ul className="flex flex-col gap-16 text-center">
                 <li className="font-bold text-4xl text-wrap">
-                    Jebb's Game Database lets you gather all of your games from supported platforms so you can
+                    The JEBBS Game Database lets you gather all of your games from supported platforms so you can
                     visualize your collection in one place!
                     <div className="flex flex-col gap-4 items-center">
                         {steamLogo}
