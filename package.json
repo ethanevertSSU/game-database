@@ -1,6 +1,6 @@
 {
   "name": "game-database",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -13,7 +13,14 @@
     "check:updates": "ncu"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^6.4.4",
+    "@mui/material": "^6.4.4",
+    "@mui/styled-engine": "^6.4.3",
+    "@prisma/client": "^6.3.1",
     "next": "15.1.7",
+    "prisma": "^6.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
