@@ -46,8 +46,8 @@ model DigitalGame {
   author     Game   @relation(fields: [dGameId], references: [gameId])
   dGameId    Int
   storefront String
-  // More info can possibly pulled from digital storefront too
 
+  // More info can possibly pulled from digital storefront too
   @@id(fields: [dGameId, storefront])
 }
 
