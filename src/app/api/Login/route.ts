@@ -17,6 +17,7 @@ export async function POST(req: Request) {
             }
         });
 
+
         let userPassword: string;
 
         if(!identifier || !password) {
