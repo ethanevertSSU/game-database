@@ -38,18 +38,23 @@ model Platform {
   platformId   Int    @id @default(autoincrement())
   platformName String @unique
   company      String
+  // Company behind the system (Microsoft, Nintendo, etc)
   playable     Game[]
 }
 
 model DigitalGame {
   author     Game   @relation(fields: [dGameId], references: [gameId])
-  dGameId    Int    @id
+  dGameId    Int
   storefront String
   // More info can possibly pulled from digital storefront too
+
+  @@id(fields: [dGameId, storefront])
 }
 
 model PhysicalGame {
   author  Game   @relation(fields: [dGameId], references: [gameId])
-  dGameId Int    @id
+  dGameId Int
   format  String
+
+  @@id(fields: [dGameId, format])
 }
