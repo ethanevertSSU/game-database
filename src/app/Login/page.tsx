@@ -1,48 +1,39 @@
 "use client";
 
 import React, { useState } from "react";
-// Next.js 13+ (App Router) import:
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Header from "@/components/Header";
 
-// If you're on Next.js 12 (Pages Router), you'd do:
-// import { useRouter } from "next/router";
-
 export default function Login() {
-    const router = useRouter();
-
-    const [username, setUsername] = useState("");
+    const [identifier, setIdentifier] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const router = useRouter();
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        // Basic client-side validation
-        if (!username || !password) {
-            setError("Please enter a username and password.");
-            return;
-        }
-        setError(""); // clear any previous error
-
-            // Send credentials to your Next.js API route.
-            // This route should handle checking the DB via Prisma.
-            const response = await fetch("/api/login", {
+        try {
+            const response = await fetch("/api/Login", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password }),
+                headers: {"content-type": "application/json"},
+                body: JSON.stringify({ identifier , password}),
             });
+            const data = await response.json();
 
             if (!response.ok) {
-                // If the API returns an error, parse and display it
-                const { message } = await response.json();
-                setError(message || "Login failed. Please try again.");
+                setError(data.error);
                 return;
             }
+            setError("");
+            router.push("/dashboard");
 
-            // If successful, you can navigate to a home or dashboard page
-            router.push("/");
+        } catch (error) {
+            console.error("Login Failed", error);
+            alert("Login Failed failed");
+        }
+
     };
 
     return (
@@ -55,9 +46,9 @@ export default function Login() {
                 <input
                     className="border-2 rounded px-3 py-2 text-black"
                     type="text"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Username Or Email"
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
                 />
 
                 <input
@@ -74,12 +65,10 @@ export default function Login() {
                         className="border-2 rounded px-4 py-2 bg-purple-200 hover:bg-purple-600 text-black">
                     Login
                 </button>
-
-                <button>
-    <span className="text-sm/2">Need to sign up? <Link
+                <span className="text-sm/2">Need to sign up? <Link
         className="visited:text-purple-600 hover:underline hover:text-blue-600"
         href="/Signup">Sign Up</Link></span>
-                </button>
+
             </form>
         </div>
             );
