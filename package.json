@@ -4,13 +4,17 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist out .cache node_modules",
-    "check:updates": "ncu"
+    "check:updates": "ncu",
+    "db:viewer": "npx prisma studio",
+    "db:migrate:createonly": "dotenv -e .env -- npx prisma migrate dev --create-only",
+    "db:migrate:dev":"dotenv -e .env -- npx prisma migrate dev",
+    "db:generate": "dotenv -e .env -- npx prisma generate"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -19,6 +23,7 @@
     "@mui/material": "^6.4.4",
     "@mui/styled-engine": "^6.4.3",
     "@prisma/client": "^6.3.1",
+    "dotenv": "^16.4.7",
     "next": "15.1.7",
     "prisma": "^6.3.1",
     "react": "^19.0.0",
