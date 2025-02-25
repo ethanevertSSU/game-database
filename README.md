@@ -14,7 +14,7 @@ If you are not sure 100% about something, don't be afraid to ask questions in th
 -[npm](https://npmjs.com/) (package manager)\
 -[React.js](https://react.dev/) (Frontend Web Framework)\
 -[Next.js](https://nextjs.org/) (Backend Web Framework and Router)\
--[Vercel](https:/vercel.com/) (Web App Deployer)\
+-[Vercel](https://vercel.com/) (Web App Deployer)\
 -[Prisma](https://prisma.io/) (DB Communication)\
 -[Tailwind CSS](https://tailwindcss.com/) (CSS Framework)
 
@@ -38,9 +38,9 @@ If you are not sure 100% about something, don't be afraid to ask questions in th
 4. [Download npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 5. run the following in ORDER!!\
    -``` npm install ``` (To install all dependencies)\
-   -``` npm run db:generate ``` (To generate the prisma client) {NOT IMPLEMENTED YET}\ 
+   -``` npm run db:generate ``` (To generate the prisma client)\ 
    -```cp .env.example .env``` (To create the environment file)
-6. populate the .env file with the enviroment variables from vercel
+6. populate the .env file with the environment variables from vercel
 
 ### Useful Commands
 
@@ -50,8 +50,10 @@ If you are not sure 100% about something, don't be afraid to ask questions in th
 3. ```npm install [library]``` (installs library with given library name)
 
 #### database commands
-5. ```npm db:migrate:createonly``` (creates a file that shows you the raw sql before you make) changes to the database)
-6. ```npm db:migrage:dev``` (changes the db ONLY in the dev environment)
+5. ```npm run db:migrate:createonly``` (creates a file that shows you the raw sql before you make changes to the database)
+6. ```npm run db:migrage:dev``` (changes the db ONLY in the dev environment)
+7. ```npm run db:viewer``` (to visually look at the data in the database)
+8. 
 
 #### github commands
 7. ```git pull``` (pulls latests changes to the branch you are currently on)
