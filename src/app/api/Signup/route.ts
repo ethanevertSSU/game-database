@@ -1,6 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 import {NextResponse} from "next/server";
 
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
+
 const validEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -26,15 +29,17 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Passwords do not match" }, {status: 400});
         }
 
+        const hash: string = bcrypt.hashSync(password.toString(), saltRounds);
+
         const newUser = await prisma.account.create({
-            data: { email ,username, password },
+            data: { email ,username, password:hash },
         });
         console.log("created new user successfully");
         return NextResponse.json({ success: true, user: newUser }, { status: 201 });
 
     } catch (error) {
         console.error("Signup error:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return NextResponse.json({ error: "Internal Server Error, Try Again Later" }, { status: 500 });
     }
 }
 
