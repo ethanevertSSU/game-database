@@ -1,8 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import {NextResponse} from "next/server";
 
-const bcrypt = require("bcrypt");
-const saltRounds = 10;
+const bcrypt = require("bcrypt").default;
 
 
 const prisma = new PrismaClient();
@@ -31,7 +30,6 @@ export async function POST(req: Request) {
         if(!user){
             return NextResponse.json({ error: "Invalid Username Or Password" }, {status: 400});
         }else {
-            userPassword = user.password;
 
             const passwordCheck = bcrypt.compareSync(password.toString(), user.password);
 
