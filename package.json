@@ -13,7 +13,7 @@
     "check:updates": "ncu",
     "db:viewer": "npx prisma studio",
     "db:migrate:createonly": "dotenv -e .env -- npx prisma migrate dev --create-only",
-    "db:migrate:dev":"dotenv -e .env -- npx prisma migrate dev",
+    "db:migrate:dev": "dotenv -e .env -- npx prisma migrate dev",
     "db:generate": "dotenv -e .env -- npx prisma generate"
   },
   "dependencies": {
@@ -23,6 +23,7 @@
     "@mui/material": "^6.4.4",
     "@mui/styled-engine": "^6.4.3",
     "@prisma/client": "^6.3.1",
+    "bcrypt": "^5.1.1",
     "dotenv": "^16.4.7",
     "next": "15.1.7",
     "prisma": "^6.3.1",
@@ -31,6 +32,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
