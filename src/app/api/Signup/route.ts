@@ -1,7 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import {NextResponse} from "next/server";
+import bcrypt from "bcrypt";
 
-const bcrypt = require("bcrypt").default;
+
 const saltRounds = 10;
 
 const validEmail = (email: string) => {

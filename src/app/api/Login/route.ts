@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import {NextResponse} from "next/server";
-
-const bcrypt = require("bcrypt").default;
+import bcrypt from "bcrypt";
 
 
 const prisma = new PrismaClient();
@@ -19,7 +18,7 @@ export async function POST(req: Request) {
         });
 
 
-        let userPassword: string;
+        //let userPassword: string;
 
 
 
