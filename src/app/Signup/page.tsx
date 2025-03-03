@@ -99,22 +99,21 @@ export default function SignUp() {
           <button className="border-2 rounded px-4 py-2 bg-purple-200 hover:bg-purple-600 text-black">
             Sign Up
           </button>
-
-          <form onSubmit={handleGoogleSubmit}>
-            <button className="border-2 rounded px-4 py-2 bg-purple-200 hover:bg-green-300 text-black">
-              Sign In With Google
-            </button>
-          </form>
-          <span className="text-sm/2">
-            Already Registered?{" "}
-            <Link
-              className="visited:text-purple-600 hover:underline hover:text-blue-600"
-              href="/Login"
-            >
-              Login
-            </Link>
-          </span>
         </form>
+        <form onSubmit={handleGoogleSubmit}>
+          <button className="border-2 rounded px-4 py-2 bg-purple-200 hover:bg-green-300 text-black">
+            Sign In With Google
+          </button>
+        </form>
+        <span className="text-sm/2">
+          Already Registered?{" "}
+          <Link
+            className="visited:text-purple-600 hover:underline hover:text-blue-600"
+            href="/Login"
+          >
+            Login
+          </Link>
+        </span>
       </div>
     </span>
   );
