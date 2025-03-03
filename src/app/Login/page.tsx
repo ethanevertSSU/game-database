@@ -1,75 +1,100 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import Link from "next/link";
 import Header from "@/components/Header";
+import { authClient } from "@/app/lib/auth-client";
 
 export default function Login() {
-    const [identifier, setIdentifier] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
-    const router = useRouter();
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+  const handleGoogleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    setError("");
 
-        try {
-            const response = await fetch("/api/Login", {
-                method: "POST",
-                headers: {"content-type": "application/json"},
-                body: JSON.stringify({ identifier , password}),
-            });
-            const data = await response.json();
+    const result = await authClient.signIn.social({
+      provider: "google",
+    });
 
-            if (!response.ok) {
-                setError(data.error);
-                return;
-            }
-            setError("");
-            router.push("/dashboard");
+    if (result.error) {
+      setError(error || "Login failed. Please try again.");
+    } else {
+      console.log(result.data);
+      redirect("/dashboard");
+    }
+  };
 
-        } catch (error) {
-            console.error("Login Failed", error);
-            alert("Login Failed failed");
-        }
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError("");
 
-    };
+    if (!identifier || !password) {
+      setError("Please enter credentials");
+    } else {
+      const result = await authClient.signIn.email({
+        email: identifier,
+        password: password,
+      });
 
-    return (
-        <div className="flex flex-col gap-3 h-screen items-center justify-center bg-purple-400">
-            <Header/>
-            <form
-                onSubmit={handleSubmit}
-                className="flex flex-col gap-3 h-screen items-center justify-center bg-purple-400"
-            >
-                <input
-                    className="border-2 rounded px-3 py-2 text-black"
-                    type="text"
-                    placeholder="Username Or Email"
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
-                />
+      if (result.error) {
+        setError(result.error.message || "Login failed. Please try again.");
+      } else {
+        console.log(result);
+        redirect("/dashboard");
+      }
+    }
+  };
 
-                <input
-                    className="border-2 rounded px-3 py-2 text-black"
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
+  return (
+    <span className="h-screen flex flex-col">
+      <Header />
+      <div className="flex h-screen flex-col gap-4 items-center justify-center bg-purple-400">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-3 items-center bg-purple-400"
+        >
+          <input
+            className="border-2 rounded px-3 py-2 text-black"
+            type="text"
+            placeholder="Email"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+          />
 
-                {error && <p className="text-red-600">{error}</p>}
+          <input
+            className="border-2 rounded px-3 py-2 text-black"
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-                <button type="submit"
-                        className="border-2 rounded px-4 py-2 bg-purple-200 hover:bg-purple-600 text-black">
-                    Login
-                </button>
-                <span className="text-sm/2">Need to sign up? <Link
-        className="visited:text-purple-600 hover:underline hover:text-blue-600"
-        href="/Signup">Sign Up</Link></span>
+          {error && <p className="text-red-600">{error}</p>}
 
-            </form>
-        </div>
-            );
-            }
+          <button className="border-2 rounded px-4 py-2 bg-purple-200 hover:bg-purple-600 text-black">
+            Login
+          </button>
+        </form>
+        <form onSubmit={handleGoogleSubmit}>
+          <button className="border-2 rounded px-4 py-2 bg-purple-200 hover:bg-green-300 text-black">
+            Sign In With Google
+          </button>
+        </form>
+        <span className="text-sm">
+          Need to sign up?{" "}
+          <Link
+            className="visited:text-purple-600 hover:underline hover:text-blue-600"
+            href="/Signup"
+          >
+            Sign Up
+          </Link>
+        </span>
+      </div>
+    </span>
+  );
+}
