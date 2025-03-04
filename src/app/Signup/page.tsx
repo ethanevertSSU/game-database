@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { authClient } from "@/app/lib/auth-client";
 import { checkUser } from "@/app/api/Signup/route";
 import Link from "next/link";

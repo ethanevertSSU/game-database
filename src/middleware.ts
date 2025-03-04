@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
-import { createAuthMiddleware } from "better-auth/api";
 
 export async function middleware(request: NextRequest) {
   const cookies = getSessionCookie(request);
