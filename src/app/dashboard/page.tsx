@@ -1,7 +1,7 @@
 import { auth } from "../lib/auth";
 import { headers } from "next/headers";
 
-export async function ServerComponent() {
+async function ServerComponent() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -15,4 +15,6 @@ export async function ServerComponent() {
   );
 }
 
-export default ServerComponent;
+export default function Dashboard() {
+  return <ServerComponent />;
+}

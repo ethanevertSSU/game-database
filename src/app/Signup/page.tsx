@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/app/lib/auth-client";
-import { checkUser } from "@/app/api/Signup/route";
 import Link from "next/link";
 import Header from "@/components/Header";
 
@@ -36,11 +35,18 @@ export default function SignUp() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
-    const userTaken = await checkUser(username);
+
+    const userTaken = await fetch("/api/Signup", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ username }),
+    });
+    const data = await userTaken.json();
+
     if (!username || !email || !password || !retype) {
       setError("Please Enter All Credentials");
-    } else if (userTaken) {
-      setError("Username is already taken");
+    } else if (!userTaken.ok) {
+      setError(data.error);
     } else if (password !== retype) {
       setError("Passwords don't match");
     } else {
