@@ -10,6 +10,7 @@ export default function Login() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleGoogleSubmit = async (
     event: React.FormEvent<HTMLFormElement>,
@@ -19,13 +20,13 @@ export default function Login() {
 
     const result = await authClient.signIn.social({
       provider: "google",
+      callbackURL: "/dashboard",
     });
 
     if (result.error) {
       setError(error || "Login failed. Please try again.");
     } else {
       console.log(result.data);
-      redirect("/dashboard");
     }
   };
 
@@ -45,7 +46,7 @@ export default function Login() {
         setError(result.error.message || "Login failed. Please try again.");
       } else {
         console.log(result);
-        redirect("/dashboard");
+        router.push("/dashboard");
       }
     }
   };
