@@ -12,3 +12,49 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  userId   Int    @id @default(autoincrement())
+  email    String @unique
+  name     String
+  password String
+  owns     Game[]
+}
+
+model Game {
+  gameId   Int            @id @default(autoincrement())
+  gameName String
+  digital  DigitalGame[]
+  physical PhysicalGame[]
+  playsOn  Platform       @relation(fields: [platform], references: [platformName])
+  platform String
+  ownedBy  User           @relation(fields: [owner], references: [userId])
+  owner    Int
+  // Can expand with more info (playtime, purchase date, etc)
+  // More info can possibly pulled from api calls eventually (developer, etc)
+}
+
+model Platform {
+  platformId   Int    @id @default(autoincrement())
+  platformName String @unique
+  company      String
+  // Company behind the system (Microsoft, Nintendo, etc)
+  playable     Game[]
+}
+
+model DigitalGame {
+  author     Game   @relation(fields: [dGameId], references: [gameId])
+  dGameId    Int
+  storefront String
+
+  // More info can possibly pulled from digital storefront too
+  @@id(fields: [dGameId, storefront])
+}
+
+model PhysicalGame {
+  author  Game   @relation(fields: [dGameId], references: [gameId])
+  dGameId Int
+  format  String
+
+  @@id(fields: [dGameId, format])
+}
