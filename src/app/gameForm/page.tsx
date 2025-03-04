@@ -146,9 +146,10 @@ export default function Login(){
                 <div className="font-bold text-2xl text-wrap">
                     Additional Notes:
                 </div>
-                <input
+                <textarea
                     className="border-2 rounded px-3 py-2 text-black"
-                    type="text"
+                    rows={4}
+                    cols={50}
                     placeholder={"Notes"}
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
