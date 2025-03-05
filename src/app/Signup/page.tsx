@@ -38,7 +38,10 @@ export default function SignUp() {
 
     const userTaken = await fetch("/api/Signup", {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: {
+        "content-type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
       body: JSON.stringify({ username }),
     });
     const data = await userTaken.json();
