@@ -27,6 +27,7 @@
     "better-auth": "^1.1.21",
     "dotenv": "^16.4.7",
     "next": "15.1.7",
+    "nextjs-cors": "^2.2.0",
     "prisma": "^6.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

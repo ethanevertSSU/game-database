@@ -36,11 +36,11 @@ export default function SignUp() {
     event.preventDefault();
     setError("");
 
-    const userTaken = await fetch("/api/Signup", {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+    const userTaken = await fetch(`${API_URL}/api/Signup`, {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "Access-Control-Allow-Origin": "*",
       },
       body: JSON.stringify({ username }),
     });
