@@ -36,8 +36,7 @@ export default function SignUp() {
     event.preventDefault();
     setError("");
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-    const userTaken = await fetch(`${API_URL}/api/Signup`, {
+    const userTaken = await fetch("/api/Signup", {
       method: "POST",
       headers: {
         "content-type": "application/json",
