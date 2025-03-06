@@ -14,11 +14,23 @@ datasource db {
 }
 
 model User {
-  userId   Int    @id @default(autoincrement())
-  email    String @unique
+  userId   Int       @id @default(autoincrement())
+  email    String    @unique
   name     String
   password String
   owns     Game[]
+  Profile  Profile[]
+}
+
+model Profile {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  userId    Int      @unique
+  bio       String?
+  avatarUrl String?
+  level     Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Game {
@@ -30,6 +42,7 @@ model Game {
   platform String
   ownedBy  User           @relation(fields: [owner], references: [userId])
   owner    Int
+  coverUrl String?
   // Can expand with more info (playtime, purchase date, etc)
   // More info can possibly pulled from api calls eventually (developer, etc)
 }
