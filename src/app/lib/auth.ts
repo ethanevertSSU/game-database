@@ -3,6 +3,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { PrismaClient } from "@prisma/client";
 import { nextCookies } from "better-auth/next-js";
 import { oAuthProxy } from "better-auth/plugins";
+import { createAuthMiddleware } from "better-auth/api";
 
 const prisma = new PrismaClient();
 
@@ -21,15 +22,9 @@ export const auth = betterAuth({
     },
   },
   hooks: {
-    after: async (ctx) => {
-      console.log("Auth Hook Triggered:", ctx.path); // Debugging
-
-      if (ctx.path === "/sign-in/email") {
-        throw ctx.redirect("/dashboard");
-      }
-      return ctx;
-    },
+    after: createAuthMiddleware(async (ctx) => {
+      console.log("Auth Hook Triggered:", ctx.path);
+    }),
   },
-  redirectUrl: `/dashboard`,
   plugins: [oAuthProxy(), nextCookies()],
 });
