@@ -1,16 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import React, { useState } from "react";
 import Header from "@/components/Header";
-import { authClient } from "@/app/lib/auth-client";
+
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { Button } from "@mui/material";
 
 export default function LibraryPage() {
   // Placeholder games data
