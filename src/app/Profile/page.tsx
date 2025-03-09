@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { Metadata } from 'next';
+import Header from "@/components/Header";
 
 export const metadata: Metadata = {
     title: 'User Profile | Game Database',
@@ -114,12 +115,7 @@ export default function ProfilePage() {
 
     return (
         <div className="min-h-screen bg-purple-50">
-            {/* Header/Banner */}
-            <div className="bg-purple-800 text-white py-8">
-                <div className="container mx-auto px-4">
-                    <h1 className="text-3xl font-bold">My Profile</h1>
-                </div>
-            </div>
+            <Header/>
 
             {/* Main Content */}
             <div className="container mx-auto px-4 py-8">
