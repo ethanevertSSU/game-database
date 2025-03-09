@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Header from "@/components/Header";
 import { authClient } from "@/app/lib/auth-client";
+import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
 
 export default function Login() {
   const [identifier, setIdentifier] = useState("");
@@ -20,11 +22,11 @@ export default function Login() {
 
     const result = await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/dashboard",
+      callbackURL: "/profile",
     });
 
     if (result.error) {
-      setError(error || "Login failed. Please try again.");
+      setError("Login failed. Please try again.");
     } else {
       console.log(result.data);
     }
@@ -36,6 +38,7 @@ export default function Login() {
 
     if (!identifier || !password) {
       setError("Please enter credentials");
+      toast("Please enter both email and password.");
     } else {
       const result = await authClient.signIn.email({
         email: identifier,
@@ -96,6 +99,7 @@ export default function Login() {
           </Link>
         </span>
       </div>
+      <Toaster />
     </span>
   );
 }
