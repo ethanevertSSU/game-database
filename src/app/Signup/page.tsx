@@ -22,7 +22,7 @@ export default function SignUp() {
 
     const result = await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/dashboard",
+      callbackURL: "/profile",
     });
 
     if (result.error) {
