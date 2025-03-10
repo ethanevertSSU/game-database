@@ -38,7 +38,7 @@ export default function Login() {
 
     if (!identifier || !password) {
       setError("Please enter credentials");
-      toast("Please enter both email and password.");
+      //toast("Please enter both email and password.");
     } else {
       const result = await authClient.signIn.email({
         email: identifier,
