@@ -8,6 +8,7 @@ import { toast } from "sonner";
 export default function Login() {
   const [gameName, setGameName] = useState("");
   const [platform, setPlatform] = useState("");
+  const [otherPlatformValue, setOtherPlatformValue] = useState(""); //for future use in more platforms
   const [showOtherInput, setShowOtherInput] = useState(false);
   const [physOrDig, setPhysOrDig] = useState("");
   const [notes, setNotes] = useState("");
@@ -53,8 +54,6 @@ export default function Login() {
       setError("Could not create game, please try again later");
       return;
     }
-
-    //I guess we can also reset the form if the user want to input something else
   };
 
   return (
@@ -137,7 +136,11 @@ export default function Login() {
           Other:
         </label>
         {showOtherInput && (
-          <input type="text" placeholder="Enter your platform" />
+          <input
+            type="text"
+            placeholder="Enter your platform"
+            onChange={(e) => setOtherPlatformValue(e.target.value)}
+          />
         )}
         <div className="font-bold text-2xl text-wrap">
           Physical or Digital Copy?:
