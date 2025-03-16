@@ -8,13 +8,11 @@ import { toast } from "sonner";
 export default function Login() {
   const [gameName, setGameName] = useState("");
   const [platform, setPlatform] = useState("");
-  const [otherPlatformValue, setOtherPlatformValue] = useState(""); //for future use in more platforms
+  // const [otherPlatformValue, setOtherPlatformValue] = useState(""); //for future use in more platforms
   const [showOtherInput, setShowOtherInput] = useState(false);
   const [physOrDig, setPhysOrDig] = useState("");
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
-
-  const resetForm = {};
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -136,11 +134,7 @@ export default function Login() {
           Other:
         </label>
         {showOtherInput && (
-          <input
-            type="text"
-            placeholder="Enter your platform"
-            onChange={(e) => setOtherPlatformValue(e.target.value)}
-          />
+          <input type="text" placeholder="Enter your platform" />
         )}
         <div className="font-bold text-2xl text-wrap">
           Physical or Digital Copy?:
