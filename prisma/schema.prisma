@@ -17,6 +17,7 @@ model User {
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
+  Game          Game[]
 
   @@unique([email])
   @@map("user")
@@ -65,4 +66,19 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+model Game {
+  id          String    @id @default(cuid())
+  createdAt   DateTime? @default(now()) @map("created_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
+  gameName    String    @map("game_name")
+  platform    String    @map("game_platform")
+  gameType    String    @map("game_type")
+  Notes       String?   @map("game_notes") //optional
+  gamePicture String?   @map("game_picture") //optional
+  userId      String    @map("user_id")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("game")
 }

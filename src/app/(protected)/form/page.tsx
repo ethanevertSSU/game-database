@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import Header from "@/components/Header";
+import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
 
 export default function Login() {
   const [gameName, setGameName] = useState("");
@@ -11,6 +13,8 @@ export default function Login() {
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
 
+  const resetForm = {};
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
@@ -19,9 +23,37 @@ export default function Login() {
       setError(
         "Please Input Game Name, Platform, and Copy Status (Notes Are Optional)",
       );
+      return;
     }
 
-    //todo: link up submit to push data onto database
+    try {
+      const response = await fetch("/api/form", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ gameName, platform, physOrDig, notes }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error);
+        return;
+      } else {
+        toast(`Added ${gameName} To Your Library`);
+
+        setGameName("");
+        setPlatform("");
+        setPhysOrDig("");
+        setNotes("");
+        setShowOtherInput(false);
+      }
+
+      setError("");
+    } catch (error) {
+      setError("Could not create game, please try again later");
+      return;
+    }
+
     //I guess we can also reset the form if the user want to input something else
   };
 
@@ -145,6 +177,7 @@ export default function Login() {
           Submit
         </button>
       </form>
+      <Toaster />
     </div>
   );
 }
