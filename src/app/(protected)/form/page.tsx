@@ -49,6 +49,7 @@ export default function Login() {
 
       setError("");
     } catch (error) {
+      console.error("Game form submit failed", error);
       setError("Could not create game, please try again later");
       return;
     }
