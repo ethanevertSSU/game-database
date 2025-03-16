@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 
 const prisma = new PrismaClient();
 //call for getting game library
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -27,11 +27,7 @@ export async function GET(req: Request) {
           },
         });
 
-        console.log("games found: ", listOfGames);
-        return NextResponse.json(
-          { success: true, game: listOfGames },
-          { status: 201 },
-        );
+        return NextResponse.json({ game: listOfGames }, { status: 201 });
       }
     }
   } catch (error) {
