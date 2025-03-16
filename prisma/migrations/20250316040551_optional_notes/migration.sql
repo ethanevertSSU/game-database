@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "game" ALTER COLUMN "Notes" DROP NOT NULL;

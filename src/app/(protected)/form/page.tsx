@@ -2,10 +2,13 @@
 
 import React, { useState } from "react";
 import Header from "@/components/Header";
+import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
 
 export default function Login() {
   const [gameName, setGameName] = useState("");
   const [platform, setPlatform] = useState("");
+  // const [otherPlatformValue, setOtherPlatformValue] = useState(""); //for future use in more platforms
   const [showOtherInput, setShowOtherInput] = useState(false);
   const [physOrDig, setPhysOrDig] = useState("");
   const [notes, setNotes] = useState("");
@@ -19,10 +22,37 @@ export default function Login() {
       setError(
         "Please Input Game Name, Platform, and Copy Status (Notes Are Optional)",
       );
+      return;
     }
 
-    //todo: link up submit to push data onto database
-    //I guess we can also reset the form if the user want to input something else
+    try {
+      const response = await fetch("/api/form", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ gameName, platform, physOrDig, notes }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error);
+        return;
+      } else {
+        toast(`Added ${gameName} To Your Library`);
+
+        setGameName("");
+        setPlatform("");
+        setPhysOrDig("");
+        setNotes("");
+        setShowOtherInput(false);
+      }
+
+      setError("");
+    } catch (error) {
+      console.error("Game form submit failed", error);
+      setError("Could not create game, please try again later");
+      return;
+    }
   };
 
   return (
@@ -145,6 +175,7 @@ export default function Login() {
           Submit
         </button>
       </form>
+      <Toaster />
     </div>
   );
 }
