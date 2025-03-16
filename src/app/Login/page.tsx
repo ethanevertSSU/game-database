@@ -92,7 +92,7 @@ export default function Login() {
         <span className="text-sm">
           Need to sign up?{" "}
           <Link
-            className="visited:text-purple-600 hover:underline hover:text-blue-600"
+            className="visited:text-purple-600 hover:underline hover:text-blue-600 text-gray-500"
             href="/Signup"
           >
             Sign Up
