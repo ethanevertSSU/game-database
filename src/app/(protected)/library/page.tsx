@@ -9,8 +9,16 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 
+const listGames = async () => {
+  const response = await fetch("/api/library", {
+    method: "GET",
+    headers: { "content-type": "application/json" },
+  });
+};
+
 export default function LibraryPage() {
   // Placeholder games data
+
   const games = [
     {
       id: "1",
