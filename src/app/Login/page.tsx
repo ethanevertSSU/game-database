@@ -43,13 +43,13 @@ export default function Login() {
       const result = await authClient.signIn.email({
         email: identifier,
         password: password,
+        callbackURL: "/profile",
       });
 
       if (result.error) {
         setError(result.error.message || "Login failed. Please try again.");
       } else {
         console.log(result);
-        router.push("/dashboard");
       }
     }
   };
