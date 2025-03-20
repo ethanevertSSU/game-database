@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Header from "@/components/Header";
 import { authClient } from "@/app/lib/auth-client";
@@ -12,7 +11,6 @@ export default function Login() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const router = useRouter();
 
   const handleGoogleSubmit = async (
     event: React.FormEvent<HTMLFormElement>,
@@ -43,13 +41,13 @@ export default function Login() {
       const result = await authClient.signIn.email({
         email: identifier,
         password: password,
+        callbackURL: "/profile",
       });
 
       if (result.error) {
         setError(result.error.message || "Login failed. Please try again.");
       } else {
         console.log(result);
-        router.push("/dashboard");
       }
     }
   };
