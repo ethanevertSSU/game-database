@@ -19,7 +19,7 @@ type Game = {
 };
 
 const GameList = () => {
-  const [games, setGames] = useState<Game[]>([]);
+  const [games, setGames] = useState<Game[]>([]); //hooks , forces structure to data
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true); // Track loading state
   const [error, setError] = useState<string | null>(null); // Track errors

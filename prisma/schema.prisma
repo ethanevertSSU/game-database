@@ -10,23 +10,22 @@ datasource db {
 model User {
   id            String    @id
   name          String
-  email         String
+  email         String    @unique
   emailVerified Boolean
   image         String?
   createdAt     DateTime
   updatedAt     DateTime
-  sessions      Session[]
   accounts      Account[]
   Game          Game[]
-
-  @@unique([email])
+  sessions      Session[]
+  bio           String?
   @@map("user")
 }
 
 model Session {
   id        String   @id
   expiresAt DateTime
-  token     String
+  token     String   @unique
   createdAt DateTime
   updatedAt DateTime
   ipAddress String?
@@ -34,25 +33,24 @@ model Session {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([token])
   @@map("session")
 }
 
 model Account {
   id                    String    @id
-  accountId             String
-  providerId            String
-  userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken           String?
-  refreshToken          String?
-  idToken               String?
   accessTokenExpiresAt  DateTime?
+  accountId             String
+  createdAt             DateTime
+  idToken               String?
+  password              String?
+  providerId            String
+  refreshToken          String?
   refreshTokenExpiresAt DateTime?
   scope                 String?
-  password              String?
-  createdAt             DateTime
   updatedAt             DateTime
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("account")
 }
@@ -71,14 +69,15 @@ model Verification {
 model Game {
   id          String    @id @default(cuid())
   createdAt   DateTime? @default(now()) @map("created_at")
-  updatedAt   DateTime? @updatedAt @map("updated_at")
   gameName    String    @map("game_name")
+  Notes       String?   @map("game_notes")
+  gamePicture String?   @map("game_picture")
   platform    String    @map("game_platform")
   gameType    String    @map("game_type")
-  Notes       String?   @map("game_notes") //optional
-  gamePicture String?   @map("game_picture") //optional
+  updatedAt   DateTime? @updatedAt @map("updated_at")
   userId      String    @map("user_id")
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("game")
 }
+

@@ -1,13 +1,63 @@
 import Image from "next/image";
-import { Metadata } from "next";
+//import { Metadata } from "next";
 import Header from "@/components/Header";
+import { useEffect, useState } from "react";
 
-export const metadata: Metadata = {
-  title: "User profile | Game Database",
-  description: "View your gaming profile, top games, and achievements",
+// export const metadata: Metadata = {
+//   title: "User profile | Game Database",
+//   description: "View your gaming profile, top games, and achievements",
+// };
+
+type UserInfo = {
+  //structure around json response
+  numGames: number;
+
+  user: User;
+};
+
+type User = {
+  id: string;
+  email: string;
+  createdAt: Date;
+  updatedAt: Date;
+  emailVerified: boolean;
+  name: string;
+  image: string | null;
+  bio: string | null;
 };
 
 export default function ProfilePage() {
+  const [loading, setLoading] = useState(true); // Track loading state
+  const [error, setError] = useState<string | null>(null); // Track errors
+  const [UserData, setUserData] = useState<UserInfo>();
+  //const [numGames, setNumGames] = useState<number>;
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch("/api/profile", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (!response.ok) {
+          setError("Failed to fetch games");
+        }
+
+        const data = await response.json();
+        setUserData(data.ResponseStruct);
+      } catch (error) {
+        console.log(error);
+        setError("Error fetching games");
+      } finally {
+        setLoading(false);
+      }
+    };
+    (async () => {
+      await fetchUserData();
+    })();
+  }, []); // Runs once when the component mounts
+
   // Placeholder user data
   const user = {
     id: "1",
@@ -31,6 +81,7 @@ export default function ProfilePage() {
       platform: "PC",
       rating: 5,
     },
+
     {
       id: "2",
       title: "The Witcher 3: Wild Hunt",
@@ -126,14 +177,14 @@ export default function ProfilePage() {
             <div className="w-full md:w-1/3 flex flex-col items-center">
               <div className="relative w-40 h-40 rounded-full overflow-hidden mb-4 border-4 border-purple-600">
                 <Image
-                  src={user.avatarUrl}
-                  alt={user.username}
+                  src={UserData?.user.image}
+                  alt={UserData?.user.name}
                   fill
                   className="object-cover"
                 />
               </div>
               <h2 className="text-2xl font-bold text-purple-900 mb-2">
-                {user.username}
+                {UserData?.user.name}
               </h2>
               <p className="text-gray-600 mb-4">
                 Member since {new Date(user.joinedDate).toLocaleDateString()}
@@ -148,7 +199,7 @@ export default function ProfilePage() {
                 </div>
                 <div className="bg-purple-100 p-3 rounded-lg">
                   <p className="text-purple-800 font-bold text-xl">
-                    {user.totalGamesPlayed}
+                    {UserData?.numGames}
                   </p>
                   <p className="text-purple-600 text-sm">Games</p>
                 </div>
