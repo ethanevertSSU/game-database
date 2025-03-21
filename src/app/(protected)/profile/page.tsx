@@ -1,7 +1,9 @@
+"use client";
 import Image from "next/image";
 //import { Metadata } from "next";
 import Header from "@/components/Header";
 import { useEffect, useState } from "react";
+import cat from "../../../../public/cat.jpg";
 
 // export const metadata: Metadata = {
 //   title: "User profile | Game Database",
@@ -177,8 +179,8 @@ export default function ProfilePage() {
             <div className="w-full md:w-1/3 flex flex-col items-center">
               <div className="relative w-40 h-40 rounded-full overflow-hidden mb-4 border-4 border-purple-600">
                 <Image
-                  src={UserData?.user.image}
-                  alt={UserData?.user.name}
+                  src={UserData?.user.image || cat}
+                  alt={UserData?.user.name || "Username"}
                   fill
                   className="object-cover"
                 />
