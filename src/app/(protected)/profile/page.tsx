@@ -1,14 +1,8 @@
 "use client";
 import Image from "next/image";
-//import { Metadata } from "next";
 import Header from "@/components/Header";
 import { useEffect, useState } from "react";
 import cat from "../../../../public/cat.jpg";
-
-// export const metadata: Metadata = {
-//   title: "User profile | Game Database",
-//   description: "View your gaming profile, top games, and achievements",
-// };
 
 type UserInfo = {
   //structure around json response
