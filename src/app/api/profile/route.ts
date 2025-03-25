@@ -26,6 +26,7 @@ export async function GET() {
             userId: user.id,
           },
         });
+
         const numGames = games.length;
 
         return NextResponse.json(
