@@ -29,7 +29,7 @@ export async function GET() {
         const numGames = games.length;
 
         return NextResponse.json(
-          { ResponseStruct: { numGames: numGames, user: user } },
+          { numGames: numGames, user: user },
           { status: 201 },
         );
       }
