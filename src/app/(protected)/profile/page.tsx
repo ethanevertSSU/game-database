@@ -1,13 +1,25 @@
+"use client";
 import Image from "next/image";
-import { Metadata } from "next";
 import Header from "@/components/Header";
+import cat from "../../../../public/cat.jpg";
+import useSWR, { preload } from "swr";
+import React from "react";
 
-export const metadata: Metadata = {
-  title: "User profile | Game Database",
-  description: "View your gaming profile, top games, and achievements",
-};
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+preload("/api/profile", fetcher);
 
 export default function ProfilePage() {
+  const { data, isLoading } = useSWR("/api/profile", fetcher);
+
+  const userDate = data?.user?.createdAt;
+  const date = new Date(userDate);
+
+  const day = date.getDay();
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+
+  const formattedDate = `${day}/${month}/${year}`;
+
   // Placeholder user data
   const user = {
     id: "1",
@@ -31,6 +43,7 @@ export default function ProfilePage() {
       platform: "PC",
       rating: 5,
     },
+
     {
       id: "2",
       title: "The Witcher 3: Wild Hunt",
@@ -115,172 +128,180 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-purple-400">
-      <Header />
-
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
-        {/* User profile Section */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <div className="flex flex-col md:flex-row items-start gap-8">
-            {/* Avatar and Stats */}
-            <div className="w-full md:w-1/3 flex flex-col items-center">
-              <div className="relative w-40 h-40 rounded-full overflow-hidden mb-4 border-4 border-purple-600">
-                <Image
-                  src={user.avatarUrl}
-                  alt={user.username}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <h2 className="text-2xl font-bold text-purple-900 mb-2">
-                {user.username}
-              </h2>
-              <p className="text-gray-600 mb-4">
-                Member since {new Date(user.joinedDate).toLocaleDateString()}
-              </p>
-
-              <div className="grid grid-cols-2 gap-4 w-full max-w-xs text-center">
-                <div className="bg-purple-100 p-3 rounded-lg">
-                  <p className="text-purple-800 font-bold text-xl">
-                    {user.level}
+      {isLoading ? (
+        <div className=" flex h-screen items-center justify-center font-bold text-3xl">
+          Loading Profile...
+        </div>
+      ) : (
+        <div className="flex flex-col">
+          <Header />
+          <div className="container mx-auto px-4 py-8">
+            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+              <div className="flex flex-col md:flex-row items-start gap-8">
+                <div className="w-full md:w-1/3 flex flex-col items-center">
+                  <div className="relative w-40 h-40 rounded-full overflow-hidden mb-4 border-4 border-purple-600">
+                    <Image
+                      src={data?.user?.image || cat}
+                      alt={data?.user?.name || "Username"}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <h2 className="text-2xl font-bold text-purple-900 mb-2">
+                    {data?.user?.name}
+                  </h2>
+                  <p className="text-gray-600 mb-4">
+                    Member since {formattedDate}
                   </p>
-                  <p className="text-purple-600 text-sm">Level</p>
-                </div>
-                <div className="bg-purple-100 p-3 rounded-lg">
-                  <p className="text-purple-800 font-bold text-xl">
-                    {user.totalGamesPlayed}
-                  </p>
-                  <p className="text-purple-600 text-sm">Games</p>
-                </div>
-                <div className="bg-purple-100 p-3 rounded-lg col-span-2">
-                  <p className="text-purple-800 font-bold text-xl">
-                    {user.totalAchievements}
-                  </p>
-                  <p className="text-purple-600 text-sm">Achievements</p>
-                </div>
-              </div>
-            </div>
 
-            {/* Bio and Details */}
-            <div className="w-full md:w-2/3">
-              <h3 className="text-xl font-semibold text-purple-800 mb-2">
-                About Me
-              </h3>
-              <p className="text-gray-700 mb-6">{user.bio}</p>
-
-              <div className="border-t border-gray-200 pt-4">
-                <h3 className="text-xl font-semibold text-purple-800 mb-4">
-                  Gaming Activity
-                </h3>
-                <div className="bg-purple-100 rounded-lg p-4">
-                  <div className="h-32 w-full flex items-center justify-center">
-                    <p className="text-purple-700">
-                      Activity chart placeholder
-                    </p>
+                  <div className="grid grid-cols-2 gap-4 w-full max-w-xs text-center">
+                    <div className="bg-purple-100 p-3 rounded-lg">
+                      <p className="text-purple-800 font-bold text-xl">
+                        {user.level}
+                      </p>
+                      <p className="text-purple-600 text-sm">Level</p>
+                    </div>
+                    <div className="bg-purple-100 p-3 rounded-lg">
+                      <p className="text-purple-800 font-bold text-xl">
+                        {data?.numGames}
+                      </p>
+                      <p className="text-purple-600 text-sm">Games</p>
+                    </div>
+                    <div className="bg-purple-100 p-3 rounded-lg col-span-2">
+                      <p className="text-purple-800 font-bold text-xl">
+                        {user.totalAchievements}
+                      </p>
+                      <p className="text-purple-600 text-sm">Achievements</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Top Games Section */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-purple-900 mb-4">
-            Top 5 Games
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-            {topGames.map((game) => (
-              <div
-                key={game.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105"
-              >
-                <div className="relative h-40 w-full">
-                  <Image
-                    src={game.coverUrl}
-                    alt={game.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="p-4">
-                  <h3
-                    className="font-bold text-purple-800 text-lg mb-1 truncate"
-                    title={game.title}
-                  >
-                    {game.title}
+                {/* Bio and Details */}
+                <div className="w-full md:w-2/3">
+                  <h3 className="text-xl font-semibold text-purple-800 mb-2">
+                    About Me
                   </h3>
-                  <p className="text-gray-600 text-sm mb-2">{game.platform}</p>
+                  <p className="text-gray-700 mb-6">{user.bio}</p>
 
-                  <div className="flex justify-between text-sm text-gray-700">
-                    <span>{game.playtime} hours</span>
-                    <span className="text-purple-600">
-                      {"★".repeat(game.rating)}
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Last played:{" "}
-                    {new Date(game.lastPlayed).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Achievements Section */}
-        <div>
-          <h2 className="text-2xl font-bold text-purple-900 mb-4">
-            Recent Achievements
-          </h2>
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            {achievements.map((achievement, index) => (
-              <div
-                key={achievement.id}
-                className={`p-4 flex items-start gap-4 ${
-                  index < achievements.length - 1
-                    ? "border-b border-gray-200"
-                    : ""
-                }`}
-              >
-                <div className="bg-purple-200 rounded-full p-3 h-12 w-12 flex items-center justify-center flex-shrink-0">
-                  <span className="text-purple-700 text-xl">🏆</span>
-                </div>
-                <div className="flex-1">
-                  <div className="flex justify-between">
-                    <h3 className="font-bold text-purple-800">
-                      {achievement.title}
+                  <div className="border-t border-gray-200 pt-4">
+                    <h3 className="text-xl font-semibold text-purple-800 mb-4">
+                      Gaming Activity
                     </h3>
-                    <span
-                      className={`px-2 py-1 rounded text-xs ${
-                        achievement.rarity === "Common"
-                          ? "bg-gray-200 text-gray-700"
-                          : achievement.rarity === "Uncommon"
-                            ? "bg-green-200 text-green-800"
-                            : achievement.rarity === "Rare"
-                              ? "bg-blue-200 text-blue-800"
-                              : "bg-purple-200 text-purple-800"
-                      }`}
-                    >
-                      {achievement.rarity}
-                    </span>
-                  </div>
-                  <p className="text-gray-600 text-sm">
-                    {achievement.description}
-                  </p>
-                  <div className="flex justify-between mt-1 text-xs text-gray-500">
-                    <span>{achievement.game}</span>
-                    <span>
-                      Unlocked:{" "}
-                      {new Date(achievement.unlockedDate).toLocaleDateString()}
-                    </span>
+                    <div className="bg-purple-100 rounded-lg p-4">
+                      <div className="h-32 w-full flex items-center justify-center">
+                        <p className="text-purple-700">
+                          Activity chart placeholder
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            ))}
+            </div>
+
+            {/* Top Games Section */}
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-purple-900 mb-4">
+                Top 5 Games
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                {topGames.map((game) => (
+                  <div
+                    key={game.id}
+                    className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105"
+                  >
+                    <div className="relative h-40 w-full">
+                      <Image
+                        src={game.coverUrl}
+                        alt={game.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <h3
+                        className="font-bold text-purple-800 text-lg mb-1 truncate"
+                        title={game.title}
+                      >
+                        {game.title}
+                      </h3>
+                      <p className="text-gray-600 text-sm mb-2">
+                        {game.platform}
+                      </p>
+
+                      <div className="flex justify-between text-sm text-gray-700">
+                        <span>{game.playtime} hours</span>
+                        <span className="text-purple-600">
+                          {"★".repeat(game.rating)}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Last played:{" "}
+                        {new Date(game.lastPlayed).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Achievements Section */}
+            <div>
+              <h2 className="text-2xl font-bold text-purple-900 mb-4">
+                Recent Achievements
+              </h2>
+              <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                {achievements.map((achievement, index) => (
+                  <div
+                    key={achievement.id}
+                    className={`p-4 flex items-start gap-4 ${
+                      index < achievements.length - 1
+                        ? "border-b border-gray-200"
+                        : ""
+                    }`}
+                  >
+                    <div className="bg-purple-200 rounded-full p-3 h-12 w-12 flex items-center justify-center flex-shrink-0">
+                      <span className="text-purple-700 text-xl">🏆</span>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex justify-between">
+                        <h3 className="font-bold text-purple-800">
+                          {achievement.title}
+                        </h3>
+                        <span
+                          className={`px-2 py-1 rounded text-xs ${
+                            achievement.rarity === "Common"
+                              ? "bg-gray-200 text-gray-700"
+                              : achievement.rarity === "Uncommon"
+                                ? "bg-green-200 text-green-800"
+                                : achievement.rarity === "Rare"
+                                  ? "bg-blue-200 text-blue-800"
+                                  : "bg-purple-200 text-purple-800"
+                          }`}
+                        >
+                          {achievement.rarity}
+                        </span>
+                      </div>
+                      <p className="text-gray-600 text-sm">
+                        {achievement.description}
+                      </p>
+                      <div className="flex justify-between mt-1 text-xs text-gray-500">
+                        <span>{achievement.game}</span>
+                        <span>
+                          Unlocked:{" "}
+                          {new Date(
+                            achievement.unlockedDate,
+                          ).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

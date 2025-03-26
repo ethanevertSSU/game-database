@@ -2,10 +2,13 @@
 import Link from "next/link";
 import { toast } from "sonner";
 import { authClient } from "@/app/lib/auth-client";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: "include" }).then((res) => res.ok);
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+const preload = async (url: string) => {
+  await mutate(url, fetcher(url), false);
+};
 
 export default function Header() {
   const { data: isLoggedIn } = useSWR("/api/session", fetcher, {});
@@ -63,6 +66,7 @@ export default function Header() {
             </Link>
             <Link
               onClick={() => handleLinkClick("/profile")}
+              onMouseEnter={() => preload("/api/profile")}
               href="/profile"
               className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#6e33ff] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
             >
