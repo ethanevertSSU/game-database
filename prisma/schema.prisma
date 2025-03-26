@@ -15,10 +15,11 @@ model User {
   image         String?
   createdAt     DateTime
   updatedAt     DateTime
+  bio           String?
   accounts      Account[]
   Game          Game[]
   sessions      Session[]
-  bio           String?
+
   @@map("user")
 }
 
@@ -80,4 +81,3 @@ model Game {
 
   @@map("game")
 }
-
