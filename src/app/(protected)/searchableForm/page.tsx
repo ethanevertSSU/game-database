@@ -284,7 +284,7 @@ const GameList = () => {
       </div>
       <Link
         className="visited:text-black hover:underline hover:text-blue-600 text-gray-500"
-        href="/Signup"
+        href="/form"
       >
         Couldn't find your game? Add one manually here:
       </Link>
