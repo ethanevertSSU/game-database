@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { auth } from "@/app/lib/auth";
 import { headers } from "next/headers";
+import { SteamOpenIdClient } from "steam-lightweight-openid";
 
 const prisma = new PrismaClient();
 //call for getting game library

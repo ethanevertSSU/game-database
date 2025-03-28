@@ -2,14 +2,20 @@
 import Image from "next/image";
 import Header from "@/components/Header";
 import cat from "../../../../public/cat.jpg";
-import useSWR, { preload } from "swr";
+import useSWR from "swr";
 import React from "react";
+import Link from "next/link";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
-preload("/api/profile", fetcher);
 
 export default function ProfilePage() {
   const { data, isLoading } = useSWR("/api/profile", fetcher);
+  const { data: steam, isLoading: steamLoading } = useSWR(
+    "/api/steam",
+    fetcher,
+  );
+
+  console.log("Steam Data: ", steam?.error);
 
   const userDate = data?.user?.createdAt;
   const date = new Date(userDate);
@@ -183,6 +189,21 @@ export default function ProfilePage() {
                   </h3>
                   <p className="text-gray-700 mb-6">{user.bio}</p>
 
+                  <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+                    <Link
+                      href={`https://steamcommunity.com/openid/login?openid.mode=checkid_setup&openid.ns=http://specs.openid.net/auth/2.0&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select&openid.identity=http://specs.openid.net/auth/2.0/identifier_select&openid.return_to=http://localhost:3000/api/steam`}
+                    >
+                      Link Steam Account
+                    </Link>
+                  </button>
+
+                  <div>
+                    {steamLoading ? (
+                      <p>Loading Steam Info...</p>
+                    ) : (
+                      <p>Steam ID: {steam?.steamId || "Not linked"}</p>
+                    )}
+                  </div>
                   <div className="border-t border-gray-200 pt-4">
                     <h3 className="text-xl font-semibold text-purple-800 mb-4">
                       Gaming Activity
