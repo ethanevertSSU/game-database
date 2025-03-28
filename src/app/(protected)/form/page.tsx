@@ -73,69 +73,32 @@ export default function Login() {
           value={gameName}
           onChange={(e) => setGameName(e.target.value)}
         />
-        <div className="font-bold text-2xl text-wrap">Select a platform:</div>
-        <label>
-          <input
-            type="radio"
-            value="PC"
-            checked={platform === "PC"}
-            onChange={(e) => {
-              setPlatform(e.target.value);
-              setShowOtherInput(false);
-            }}
-          />{" "}
-          PC
-        </label>
-        <label>
-          <input
-            type="radio"
-            value="Playstation 5"
-            checked={platform === "Playstation 5"}
-            onChange={(e) => {
-              setPlatform(e.target.value);
-              setShowOtherInput(false);
-            }}
-          />{" "}
-          Playstation 5
-        </label>
-        <label>
-          <input
-            type="radio"
-            value="XBOX Series X"
-            checked={platform === "XBOX Series X"}
-            onChange={(e) => {
-              setPlatform(e.target.value);
-              setShowOtherInput(false);
-            }}
-          />{" "}
-          XBOX Series X
-        </label>
-        <label>
-          <input
-            type="radio"
-            value="Nintendo Switch"
-            checked={platform === "Nintendo Switch"}
-            onChange={(e) => {
-              setPlatform(e.target.value);
-              setShowOtherInput(false);
-            }}
-          />{" "}
-          Nintendo Switch
-        </label>
-        <label>
-          <input
-            type="radio"
-            value="other"
-            checked={platform === "other"}
-            onChange={(e) => {
-              setPlatform(e.target.value);
-              setShowOtherInput(true);
-            }}
-          />{" "}
-          Other:
-        </label>
+        <div className="font-bold text-2xl text-wrap mb-2">
+          Select a platform:
+        </div>
+        <select
+          className="border rounded px-3 py-2 text-black"
+          value={platform}
+          onChange={(e) => {
+            const selectedValue = e.target.value;
+            setPlatform(selectedValue);
+            setShowOtherInput(selectedValue === "other");
+          }}
+        >
+          <option value="">-- Choose a platform --</option>
+          <option value="PC">PC</option>
+          <option value="Playstation 5">Playstation 5</option>
+          <option value="XBOX Series X">XBOX Series X</option>
+          <option value="Nintendo Switch">Nintendo Switch</option>
+          <option value="other">Other</option>
+        </select>
+
         {showOtherInput && (
-          <input type="text" placeholder="Enter your platform" />
+          <input
+            type="text"
+            placeholder="Enter your platform"
+            className="mt-2 border rounded px-3 py-2 text-black"
+          />
         )}
         <div className="font-bold text-2xl text-wrap">
           Physical or Digital Copy?:
