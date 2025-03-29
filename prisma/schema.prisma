@@ -18,6 +18,7 @@ model User {
   bio           String?
   accounts      Account[]
   Game          Game[]
+  LinkedAccounts LinkedAccounts[]
   sessions      Session[]
 
   @@map("user")
@@ -80,4 +81,17 @@ model Game {
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("game")
+}
+
+model LinkedAccounts {
+  id          String    @id @default(cuid())
+  createdAt   DateTime? @default(now()) @map("created_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
+  externalPlatformId String @map("external_platform_id")
+  externalPlatformUserName String @map("external_platform_user_name")
+  platformName String @map("platform_name")
+  userId      String    @map("user_id")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("linked_accounts")
 }

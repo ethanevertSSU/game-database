@@ -51,7 +51,7 @@ const GameList = () => {
         </div>
       )}
       {!isLoading && games.length > 0 && (
-        <div className="flex flex-col gap-3 h-screen items-center justify-top bg-purple-400">
+        <div className="flex flex-col gap-3 w-full items-center justify-top bg-purple-400">
           <input
             className="border-3 rounded px-3 py-2 text-black"
             type="text"
@@ -73,8 +73,9 @@ const GameList = () => {
                           <Image
                             src={game.gamePicture}
                             alt={game.gameName}
-                            fill
-                            className="object-cover"
+                            width={300}
+                            height={250}
+                            className="object-cover rounded shadow-2xl"
                           />
                         ) : (
                           <p className="text-center pt-9 text-gray-500">
