@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  getSteamGames,
-  getSteamPlayerInfo,
-  steamGames,
-} from "@/app/api/steam/steam";
+import { getSteamGames, getSteamPlayerInfo } from "@/app/api/steam/steam";
+import { PrismaClient } from "@prisma/client";
+import { auth } from "@/app/lib/auth";
+import { headers } from "next/headers";
+
+const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
   // Parse the query parameters from Steam OpenID response
@@ -33,8 +34,66 @@ export async function GET(req: NextRequest) {
   console.log("game info: ", games);
 
   // Optional: Store in a session/database here if needed
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-  // Redirect to profile page with Steam ID
+  const username = session?.user.name ?? " ";
+
+  if (session) {
+    console.log("session available: ", session);
+    const user = await prisma.user.findFirst({
+      where: {
+        name: username,
+      },
+    });
+
+    if (user) {
+      console.log("user found: ", user);
+      const userAlreadyExists = await prisma.linkedAccounts.findFirst({
+        where: {
+          externalPlatformId: steamId,
+        },
+      });
+
+      if (!userAlreadyExists) {
+        console.log("user does not exist");
+        const addSteamAccount = await prisma.linkedAccounts.create({
+          data: {
+            externalPlatformId: steamId,
+            externalPlatformUserName: steamUsername,
+            platformName: "Steam",
+            user: {
+              connect: { id: user.id },
+            },
+          },
+        });
+
+        gameInfo.games.map(async (game) => {
+          const gameName = game.name;
+          const gamePlatform = "Steam (PC)";
+          const physOrDig = "digital";
+          const gamePicture = `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${game.appid}/header.jpg?`;
+
+          await prisma.game.create({
+            data: {
+              gameName: gameName,
+              platform: gamePlatform,
+              gameType: physOrDig,
+              gamePicture: gamePicture,
+              user: {
+                connect: { id: user.id },
+              },
+            },
+          });
+        });
+
+        console.log("steam account linked", addSteamAccount);
+      } else {
+        console.log("steam account already exist", steamUsername);
+      }
+    }
+  }
   return NextResponse.redirect(
     `http://localhost:3000/profile?steamId=${steamId}`,
   );
