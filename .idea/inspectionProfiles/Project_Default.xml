@@ -7,7 +7,6 @@
           <option value="http://0.0.0.0" />
           <option value="http://127.0.0.1" />
           <option value="http://activemq.apache.org/schema/" />
-          <option value="http://api.steampowered.com" />
           <option value="http://cxf.apache.org/schemas/" />
           <option value="http://java.sun.com/" />
           <option value="http://javafx.com/fxml" />
