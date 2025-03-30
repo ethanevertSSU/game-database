@@ -107,7 +107,7 @@ const GameList = () => {
             Add more games to your library using the{" "}
             <Link
               className="visited:text-purple-600 hover:underline hover:text-blue-600 text-gray-500"
-              href="/form"
+              href="/searchableForm"
             >
               form
             </Link>{" "}

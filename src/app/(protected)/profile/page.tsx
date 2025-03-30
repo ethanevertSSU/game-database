@@ -249,10 +249,10 @@ export default function ProfilePage() {
                           key={link.id}
                           className="inline-flex justify-between items-center gap-4 border rounded bg-gray-200"
                         >
-                          <div className="inline-flex flex-row justify-between gap-4">
+                          <div className="flex items-center justify-between gap-4 border rounded bg-gray-200 p-1 ">
                             <svg className="size-7">{steamIcon} </svg>
                             <a
-                              className="text-blue-500 hover:text-blue-700 focus:outline-none focus:shadow-outline hover:underline visited:text-purple-700"
+                              className="font-bold text-blue-500 hover:text-blue-700 focus:outline-none focus:shadow-outline hover:underline visited:text-purple-700"
                               target="_blank"
                               href={`https://steamcommunity.com/profiles/${link.externalPlatformId}`}
                             >
@@ -261,7 +261,7 @@ export default function ProfilePage() {
                             </a>
                             <Dialog>
                               <DialogTrigger>
-                                <p className="text-red-500 hover:underline gap-4">
+                                <p className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition">
                                   unlink
                                 </p>
                               </DialogTrigger>
@@ -278,7 +278,7 @@ export default function ProfilePage() {
                                   <button
                                     type="button"
                                     onClick={() => handleUnlink(link.id)}
-                                    className="text-red-500 hover:underline gap-4"
+                                    className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
                                   >
                                     I understand, unlink my steam account
                                   </button>
@@ -288,13 +288,42 @@ export default function ProfilePage() {
                           </div>
                         </div>
                       ))}
-                      <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
-                        <Link
-                          href={`https://steamcommunity.com/openid/login?openid.mode=checkid_setup&openid.ns=http://specs.openid.net/auth/2.0&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select&openid.identity=http://specs.openid.net/auth/2.0/identifier_select&openid.return_to=${steamReturnURL}/api/steam/`}
-                        >
-                          Link Steam Account
-                        </Link>
-                      </button>
+                      <Dialog>
+                        <DialogTrigger>
+                          <p className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+                            Link Steam Account
+                          </p>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Make Steam Account Public</DialogTitle>
+                            <DialogDescription className="font-medium">
+                              Please make sure that your steam account is set to
+                              public before clicking on the button below. If you
+                              do not set your account to public it will link to
+                              your JEBBS account, but you games will not import.
+                              <br />
+                              <br />
+                              <a
+                                className="text-blue-600 hover:underline visited:text-purple-600"
+                                target="_blank"
+                                href="https://support.challengermode.com/en/start-here/make-your-steam-profile-public"
+                              >
+                                {" "}
+                                Here is a link to a guide on how to make your
+                                steam account public
+                              </a>
+                            </DialogDescription>
+                            <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+                              <Link
+                                href={`https://steamcommunity.com/openid/login?openid.mode=checkid_setup&openid.ns=http://specs.openid.net/auth/2.0&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select&openid.identity=http://specs.openid.net/auth/2.0/identifier_select&openid.return_to=${steamReturnURL}/api/steam/`}
+                              >
+                                I Understand, Link Steam Account
+                              </Link>
+                            </button>
+                          </DialogHeader>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   )}
                   <div className="border-t border-gray-200 pt-4">
