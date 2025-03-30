@@ -2,14 +2,71 @@
 import Image from "next/image";
 import Header from "@/components/Header";
 import cat from "../../../../public/cat.jpg";
-import useSWR, { preload } from "swr";
+import useSWR, { mutate } from "swr";
 import React from "react";
+import Link from "next/link";
+import { steamIcon } from "../../../../public/steamIcon";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+type link = {
+  id: string;
+  externalPlatformId: string;
+  externalPlatformUserName: string;
+  platformName: string;
+};
+
+type returnURL = {
+  url: string;
+};
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
-preload("/api/profile", fetcher);
 
 export default function ProfilePage() {
+  const { data: returnURL } = useSWR<returnURL>("api/url", fetcher);
   const { data, isLoading } = useSWR("/api/profile", fetcher);
+  const { data: listOfLinkedAccounts, isLoading: loadingLinkedAccounts } =
+    useSWR<{ linkedAccounts: link[] }>("/api/linkedaccounts", fetcher);
+
+  console.log(listOfLinkedAccounts);
+
+  const steamReturnURL = returnURL?.url;
+  console.log(steamReturnURL);
+
+  // Function to handle unlink (DELETE request)
+  const handleUnlink = async (accountId: string) => {
+    try {
+      const response = await fetch(`/api/linkedaccounts`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accountId }),
+      });
+
+      console.log(response);
+
+      if (!response.ok) {
+        toast("Failed to unlink account");
+        return;
+      }
+
+      // Revalidate data after deletion
+      await mutate("/api/linkedaccounts");
+      await mutate("/api/profile");
+      toast(`Account removed successfully`);
+    } catch (error) {
+      console.error("Error unlinking account:", error);
+    }
+  };
+
+  const linkedAccounts = listOfLinkedAccounts?.linkedAccounts || [];
 
   const userDate = data?.user?.createdAt;
   const date = new Date(userDate);
@@ -182,7 +239,64 @@ export default function ProfilePage() {
                     About Me
                   </h3>
                   <p className="text-gray-700 mb-6">{user.bio}</p>
-
+                  {loadingLinkedAccounts ? (
+                    <p>Loading Steam Info...</p>
+                  ) : (
+                    <div className="inline-flex flex-col">
+                      <p className="font-bold">Linked Accounts: </p>
+                      {linkedAccounts.map((link) => (
+                        <div
+                          key={link.id}
+                          className="inline-flex justify-between items-center gap-4 border rounded bg-gray-200"
+                        >
+                          <div className="inline-flex flex-row justify-between gap-4">
+                            <svg className="size-7">{steamIcon} </svg>
+                            <a
+                              className="text-blue-500 hover:text-blue-700 focus:outline-none focus:shadow-outline hover:underline visited:text-purple-700"
+                              target="_blank"
+                              href={`https://steamcommunity.com/profiles/${link.externalPlatformId}`}
+                            >
+                              {" "}
+                              {link.externalPlatformUserName}
+                            </a>
+                            <Dialog>
+                              <DialogTrigger>
+                                <p className="text-red-500 hover:underline gap-4">
+                                  unlink
+                                </p>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>
+                                    Unlinking Steam Account
+                                  </DialogTitle>
+                                  <DialogDescription>
+                                    Unlinking this steam account will remove all
+                                    games in your library that are associated
+                                    with this steam account!
+                                  </DialogDescription>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUnlink(link.id)}
+                                    className="text-red-500 hover:underline gap-4"
+                                  >
+                                    I understand, unlink my steam account
+                                  </button>
+                                </DialogHeader>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
+                        </div>
+                      ))}
+                      <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+                        <Link
+                          href={`https://steamcommunity.com/openid/login?openid.mode=checkid_setup&openid.ns=http://specs.openid.net/auth/2.0&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select&openid.identity=http://specs.openid.net/auth/2.0/identifier_select&openid.return_to=${steamReturnURL}/api/steam/`}
+                        >
+                          Link Steam Account
+                        </Link>
+                      </button>
+                    </div>
+                  )}
                   <div className="border-t border-gray-200 pt-4">
                     <h3 className="text-xl font-semibold text-purple-800 mb-4">
                       Gaming Activity
@@ -302,6 +416,7 @@ export default function ProfilePage() {
           </div>
         </div>
       )}
+      <Toaster />
     </div>
   );
 }
