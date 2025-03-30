@@ -90,5 +90,5 @@ export async function GET(req: NextRequest) {
       }
     }
   }
-  return NextResponse.redirect(`${returnURL}profile?steamId=${steamId}`);
+  return NextResponse.redirect(`${returnURL}/profile?steamId=${steamId}`);
 }
