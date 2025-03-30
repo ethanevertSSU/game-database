@@ -30,7 +30,6 @@ export async function GET(req: NextRequest) {
 
   //game info
   const { response: gameInfo } = await getSteamGames(steamId);
-  const games = gameInfo.games;
 
   // Optional: Store in a session/database here if needed
   const session = await auth.api.getSession({
