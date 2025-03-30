@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import { auth } from "@/app/lib/auth";
 import { headers } from "next/headers";
 
+const returnURL = process.env.BETTER_AUTH_URL;
 const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
@@ -89,7 +90,5 @@ export async function GET(req: NextRequest) {
       }
     }
   }
-  return NextResponse.redirect(
-    `http://localhost:3000/profile?steamId=${steamId}`,
-  );
+  return NextResponse.redirect(`${returnURL}profile?steamId=${steamId}`);
 }
