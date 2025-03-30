@@ -284,14 +284,13 @@ export default function ProfilePage() {
                       ))}
                       <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
                         <Link
-                          href={`https://steamcommunity.com/openid/login?openid.mode=checkid_setup&openid.ns=http://specs.openid.net/auth/2.0&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select&openid.identity=http://specs.openid.net/auth/2.0/identifier_select&openid.return_to=${returnURL}api/steam/`}
+                          href={`https://steamcommunity.com/openid/login?openid.mode=checkid_setup&openid.ns=http://specs.openid.net/auth/2.0&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select&openid.identity=http://specs.openid.net/auth/2.0/identifier_select&openid.return_to=${returnURL}/api/steam/`}
                         >
                           Link Steam Account
                         </Link>
                       </button>
                     </div>
                   )}
-
                   <div className="border-t border-gray-200 pt-4">
                     <h3 className="text-xl font-semibold text-purple-800 mb-4">
                       Gaming Activity
