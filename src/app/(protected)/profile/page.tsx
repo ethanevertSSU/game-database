@@ -8,6 +8,14 @@ import Link from "next/link";
 import { steamIcon } from "../../../../public/steamIcon";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 type link = {
   id: string;
@@ -243,13 +251,32 @@ export default function ProfilePage() {
                               {" "}
                               {link.externalPlatformUserName}
                             </a>
-                            <button
-                              type="button"
-                              onClick={() => handleUnlink(link.id)}
-                              className="text-red-500 hover:underline gap-4"
-                            >
-                              unlink
-                            </button>
+                            <Dialog>
+                              <DialogTrigger>
+                                <p className="text-red-500 hover:underline gap-4">
+                                  unlink
+                                </p>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>
+                                    Unlinking Steam Account
+                                  </DialogTitle>
+                                  <DialogDescription>
+                                    Unlinking this steam account will remove all
+                                    games in your library that are associated
+                                    with this steam account!
+                                  </DialogDescription>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUnlink(link.id)}
+                                    className="text-red-500 hover:underline gap-4"
+                                  >
+                                    I understand, unlink my steam account
+                                  </button>
+                                </DialogHeader>
+                              </DialogContent>
+                            </Dialog>
                           </div>
                         </div>
                       ))}

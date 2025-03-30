@@ -31,7 +31,6 @@ export async function GET(req: NextRequest) {
   //game info
   const { response: gameInfo } = await getSteamGames(steamId);
   const games = gameInfo.games;
-  console.log("game info: ", games);
 
   // Optional: Store in a session/database here if needed
   const session = await auth.api.getSession({
@@ -41,7 +40,6 @@ export async function GET(req: NextRequest) {
   const username = session?.user.name ?? " ";
 
   if (session) {
-    console.log("session available: ", session);
     const user = await prisma.user.findFirst({
       where: {
         name: username,
@@ -49,13 +47,11 @@ export async function GET(req: NextRequest) {
     });
 
     if (user) {
-      console.log("user found: ", user);
       const userAlreadyExists = await prisma.linkedAccounts.findFirst({
         where: {
           externalPlatformId: steamId,
         },
       });
-
       if (!userAlreadyExists) {
         console.log("user does not exist");
         const addSteamAccount = await prisma.linkedAccounts.create({
@@ -71,7 +67,7 @@ export async function GET(req: NextRequest) {
 
         gameInfo.games.map(async (game) => {
           const gameName = game.name;
-          const gamePlatform = "Steam (PC)";
+          const gamePlatform = `Steam (PC): ${steamUsername}`;
           const physOrDig = "digital";
           const gamePicture = `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${game.appid}/header.jpg?`;
 

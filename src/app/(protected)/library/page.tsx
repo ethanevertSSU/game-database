@@ -90,7 +90,7 @@ const GameList = () => {
                         >
                           {game.gameName}
                         </p>
-                        <p className="text-gray-600 text-sm">
+                        <p className="text-gray-700 text-sm">
                           {game.platform} | {game.gameType}
                         </p>
                       </div>

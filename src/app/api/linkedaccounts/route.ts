@@ -39,12 +39,23 @@ export async function DELETE(req: Request) {
   try {
     const { accountId } = await req.json();
 
+    const steamAccount = await prisma.linkedAccounts.findFirst({
+      where: {
+        id: accountId,
+      },
+    });
+
+    const steamUsername = steamAccount?.externalPlatformUserName;
+    console.log(steamUsername);
+
     await prisma.linkedAccounts.delete({
       where: {
         id: accountId,
       },
     });
     console.log("Account deleted successfully");
+
+    console.log(steamUsername);
 
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -63,7 +74,7 @@ export async function DELETE(req: Request) {
         await prisma.game.deleteMany({
           where: {
             userId: user.id,
-            platform: "Steam (PC)",
+            platform: `Steam (PC): ${steamUsername}`,
           },
         });
         console.log("Steam Games Deleted From Account", username);

@@ -1,11 +1,11 @@
 import { PrismaClient } from "@prisma/client";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { auth } from "@/app/lib/auth";
 import { headers } from "next/headers";
 
 const prisma = new PrismaClient();
 //call for getting game library
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
