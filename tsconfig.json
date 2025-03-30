@@ -20,9 +20,6 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "steam-lightweight-openid": [
-        ""
-      ]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
