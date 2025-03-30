@@ -284,7 +284,7 @@ const GameList = () => {
       </div>
 
       <p>
-        Couldn't find your game? Add one manually using the{" "}
+        Couldn&#39;t find your game? Add one manually using the{" "}
         <Link
           className="visited:text-purple-700 hover:underline hover:text-blue-600 text-blue-600"
           href="/form"
