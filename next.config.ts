@@ -17,6 +17,13 @@ const nextConfig: NextConfig = {
         pathname: "/**",
         search: "",
       },
+      {
+        protocol: "https",
+        hostname: "shared.cloudflare.steamstatic.com",
+        port: "",
+        pathname: "/**",
+        search: "",
+      },
     ],
   },
 };
