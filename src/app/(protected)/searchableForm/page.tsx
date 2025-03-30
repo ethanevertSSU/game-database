@@ -100,8 +100,8 @@ const GameList = () => {
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true); // Track loading state for furture api pulls
-  const [error, setError] = useState<string | null>(null); // Track errors
+  // const [loading, setLoading] = useState(true); // Track loading state for furture api pulls
+  // const [error, setError] = useState<string | null>(null); // Track errors
 
   // select a game before immediately inputting it into the library
   const handleSelectGame = (game: Game) => {
@@ -116,7 +116,7 @@ const GameList = () => {
 
   const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    setError("");
+    // setError("");
     if (!selectedGame) return;
 
     try {
@@ -132,19 +132,19 @@ const GameList = () => {
         }),
       });
 
-      const data = await response.json();
+      // const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error);
-        return;
+        // setError(data.error);
+        // return;
       } else {
         toast(`Added ${selectedGame.gameName} To Your Library`);
       }
 
-      setError("");
+      // setError("");
     } catch (error) {
       console.error("Game form submit failed", error);
-      setError("Could not add game, please try again later");
+      // setError("Could not add game, please try again later");
       return;
     }
   };
@@ -282,12 +282,17 @@ const GameList = () => {
           </div>
         )}
       </div>
-      <Link
-        className="visited:text-black hover:underline hover:text-blue-600 text-gray-500"
-        href="/form"
-      >
-        Couldn't find your game? Add one manually here:
-      </Link>
+
+      <p>
+        Couldn't find your game? Add one manually using the{" "}
+        <Link
+          className="visited:text-purple-700 hover:underline hover:text-blue-600 text-blue-600"
+          href="/form"
+        >
+          {" "}
+          manual form
+        </Link>
+      </p>
     </div>
   );
 };
