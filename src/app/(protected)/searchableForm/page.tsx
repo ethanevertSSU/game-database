@@ -22,6 +22,7 @@ type Game = {
 };
 
 // static data
+/*
 const GameList = () => {
   const [games] = useState<Game[]>([
     {
@@ -96,10 +97,59 @@ const GameList = () => {
       Notes: "Relaxing farming sim",
       gamePicture: null,
     },
-  ]);
+  ]); */
+
+const GameList = () => {
+  const [games, setGames] = useState<Game[]>([]);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchGames = async (term: string) => {
+    setLoading(true);
+    setError(null);
+    setGames([]);
+    try {
+      const response = await fetch("/api/igdb-search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: term }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch from IGDB");
+      }
+
+      const data = await response.json();
+      const formattedGames = data.map((game: any) => ({
+        id: game.id.toString(),
+        gameName: game.name,
+        platform: game.platforms?.[0]?.name || "Unknown",
+        gameType: "Unknown", // You can customize this later
+        Notes: game.summary || null,
+        gamePicture: game.cover
+          ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.image_id}.jpg`
+          : null,
+      }));
+
+      setGames(formattedGames);
+    } catch (err: any) {
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = () => {
+    setSearchTerm(searchInput);
+    fetchGames(searchInput);
+  };
+
+  //const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  //const [searchInput, setSearchInput] = useState("");
+  //const [searchTerm, setSearchTerm] = useState("");
   // const [loading, setLoading] = useState(true); // Track loading state for furture api pulls
   // const [error, setError] = useState<string | null>(null); // Track errors
 
@@ -165,7 +215,7 @@ const GameList = () => {
             onChange={(e) => setSearchInput(e.target.value)}
           />
           <button
-            onClick={() => setSearchTerm(searchInput)}
+            onClick={handleSearch}
             className="border border-l-0 bg-purple-600 hover:bg-purple-800 text-white rounded-r px-4 py-3.5 flex items-center justify-center"
           >
             <FaSearch />
