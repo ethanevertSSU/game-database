@@ -104,12 +104,8 @@ const GameList = () => {
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const fetchGames = async (term: string) => {
-    setLoading(true);
-    setError(null);
     setGames([]);
     try {
       const response = await fetch("/api/igdb-search", {
