@@ -56,7 +56,9 @@ const GameList = () => {
           gameName: game.name,
           platforms,
           Notes: game.summary || null,
-          gamePicture: `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.image_id}.jpg`,
+          gamePicture: game.cover
+            ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.image_id}.jpg`
+            : "",
         };
       });
 
@@ -127,7 +129,7 @@ const GameList = () => {
         {searchTerm && (
           <>
             {games.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                 {games.map((game) => (
                   <div
                     key={game.id}
