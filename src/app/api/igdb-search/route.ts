@@ -1,11 +1,13 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+import { auth } from "@/app/lib/auth";
+import { headers } from "next/headers";
+import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 const CLIENT_ID = "bz7ocndodrnlkdpe3venwbqmfuwttm";
 const AUTH_TOKEN = "j7dlfr4o9fnbol7x593n1q66w1ecun";
 
-export async function POST(req: NextApiRequest) {
-  const { query } = req.body;
+export async function POST(req: Request) {
+  const { query } = await req.body;
 
   try {
     const igdbRes = await fetch("https://api.igdb.com/v4/games", {
