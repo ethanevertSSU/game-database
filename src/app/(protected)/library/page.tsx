@@ -73,8 +73,7 @@ const GameList = () => {
                           <Image
                             src={game.gamePicture}
                             alt={game.gameName}
-                            width={300}
-                            height={250}
+                            fill
                             className="object-cover rounded shadow-2xl"
                           />
                         ) : (

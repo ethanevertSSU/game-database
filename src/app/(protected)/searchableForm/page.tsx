@@ -18,7 +18,7 @@ type Game = {
   platform: string;
   gameType: string;
   Notes: string | null;
-  gamePicture: string | null;
+  gamePicture: string;
 };
 
 const GameList = () => {
@@ -28,6 +28,7 @@ const GameList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true); // Track loading state for future api pulls
   const [error, setError] = useState<string | null>(null); // Track errors
+  const [gameType, setGameType] = useState("Digital");
 
   const fetchGames = async (term: string) => {
     setGames([]);
@@ -43,16 +44,17 @@ const GameList = () => {
       }
 
       const data = await response.json();
-      const formattedGames = data.map((game: any) => ({
-        id: game.id.toString(),
-        gameName: game.name,
-        platform: game.platforms?.[0]?.name || "Unknown",
-        gameType: "Unknown", // You can customize this later
-        Notes: game.summary || null,
-        gamePicture: game.cover
-          ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.image_id}.jpg`
-          : null,
-      }));
+      const formattedGames = data.flatMap((game: any) => {
+        const platforms = game.platforms || [{ name: "Unknown" }];
+        return platforms.map((platform: any) => ({
+          id: `${game.id}-${platform.id}`, // make ID unique per platform
+          gameName: game.name,
+          platform: platform.name,
+          gameType: "Unknown",
+          Notes: game.summary || null,
+          gamePicture: `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.image_id}.jpg`,
+        }));
+      });
 
       setGames(formattedGames);
     } catch (err: any) {
@@ -66,12 +68,6 @@ const GameList = () => {
     setSearchTerm(searchInput);
     fetchGames(searchInput);
   };
-
-  //const [selectedGame, setSelectedGame] = useState<Game | null>(null);
-  //const [searchInput, setSearchInput] = useState("");
-  //const [searchTerm, setSearchTerm] = useState("");
-  // const [loading, setLoading] = useState(true); // Track loading state for furture api pulls
-  // const [error, setError] = useState<string | null>(null); // Track errors
 
   // select a game before immediately inputting it into the library
   const handleSelectGame = (game: Game) => {
@@ -96,7 +92,7 @@ const GameList = () => {
         body: JSON.stringify({
           gameName: selectedGame.gameName,
           platform: selectedGame.platform,
-          gameType: selectedGame.gameType,
+          physOrDig: gameType,
           Notes: selectedGame.Notes,
           gamePicture: selectedGame.gamePicture,
         }),
@@ -248,6 +244,20 @@ const GameList = () => {
               >
                 Submit
               </button>
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <label htmlFor="gameType" className="text-black font-medium">
+                Select Game Type:
+              </label>
+              <select
+                id="gameType"
+                value={gameType}
+                onChange={(e) => setGameType(e.target.value)}
+                className="border rounded px-3 py-2 text-black"
+              >
+                <option value="Digital">Digital</option>
+                <option value="Physical">Physical</option>
+              </select>
             </div>
           </div>
         )}
