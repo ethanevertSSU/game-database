@@ -15,20 +15,23 @@ import { FaSearch } from "react-icons/fa";
 type Game = {
   id: string;
   gameName: string;
-  platform: string;
-  gameType: string;
+  platforms: string[];
   Notes: string | null;
   gamePicture: string;
 };
 
 const GameList = () => {
   const [games, setGames] = useState<Game[]>([]);
-  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true); // Track loading state for future api pulls
-  const [error, setError] = useState<string | null>(null); // Track errors
-  const [gameType, setGameType] = useState("Digital");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [platformSelection, setPlatformSelection] = useState<
+    Record<string, string>
+  >({});
+  const [typeSelection, setTypeSelection] = useState<Record<string, string>>(
+    {},
+  );
 
   const fetchGames = async (term: string) => {
     setGames([]);
@@ -44,16 +47,17 @@ const GameList = () => {
       }
 
       const data = await response.json();
-      const formattedGames = data.flatMap((game: any) => {
-        const platforms = game.platforms || [{ name: "Unknown" }];
-        return platforms.map((platform: any) => ({
-          id: `${game.id}-${platform.id}`, // make ID unique per platform
+      const formattedGames = data.map((game: any) => {
+        const platforms = game.platforms?.map((p: any) => p.name) || [
+          "Unknown",
+        ];
+        return {
+          id: game.id.toString(),
           gameName: game.name,
-          platform: platform.name,
-          gameType: "Unknown",
+          platforms,
           Notes: game.summary || null,
           gamePicture: `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.image_id}.jpg`,
-        }));
+        };
       });
 
       setGames(formattedGames);
@@ -69,49 +73,32 @@ const GameList = () => {
     fetchGames(searchInput);
   };
 
-  // select a game before immediately inputting it into the library
-  const handleSelectGame = (game: Game) => {
-    setSelectedGame(game);
-  };
-
-  const filteredGames = games.filter(
-    (game) =>
-      game.gameName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      game.platform.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
-  const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    // setError("");
-    if (!selectedGame) return;
+  const handleSubmit = async (game: Game) => {
+    const platform = platformSelection[game.id] || game.platforms[0];
+    const gameType = typeSelection[game.id] || "Digital";
 
     try {
       const response = await fetch("/api/form", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          gameName: selectedGame.gameName,
-          platform: selectedGame.platform,
+          gameName: game.gameName,
+          platform,
           physOrDig: gameType,
-          Notes: selectedGame.Notes,
-          gamePicture: selectedGame.gamePicture,
+          Notes: game.Notes,
+          gamePicture: game.gamePicture,
         }),
       });
 
-      // const data = await response.json();
-
       if (!response.ok) {
-        // setError(data.error);
-        // return;
-      } else {
-        toast(`Added ${selectedGame.gameName} To Your Library`);
+        throw new Error("Failed to submit");
       }
 
-      // setError("");
+      toast(
+        `Added ${game.gameName} (${platform}, ${gameType}) to your library`,
+      );
     } catch (error) {
       console.error("Game form submit failed", error);
-      // setError("Could not add game, please try again later");
-      return;
     }
   };
 
@@ -139,75 +126,18 @@ const GameList = () => {
         </div>
         {searchTerm && (
           <>
-            {filteredGames.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                {filteredGames.map((game) => (
-                  <HoverCard key={game.id}>
-                    <HoverCardTrigger asChild>
-                      <button
-                        onClick={() => handleSelectGame(game)}
-                        style={{ width: "300px", height: "250px" }}
-                        className="text-left bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105"
-                      >
-                        <div className="p-4">
-                          <div className="relative h-40 w-full">
-                            {game.gamePicture ? (
-                              <Image
-                                src={game.gamePicture}
-                                alt={game.gameName}
-                                fill
-                                className="object-cover"
-                              />
-                            ) : (
-                              <p className="text-center pt-9 text-gray-500">
-                                NO PICTURE AVAILABLE
-                              </p>
-                            )}
-                          </div>
-                          <div className="flex flex-col justify-start">
-                            <p
-                              className="font-bold text-purple-800 text-lg truncate"
-                              title={game.gameName}
-                            >
-                              {game.gameName}
-                            </p>
-                            <p className="text-gray-600 text-sm">
-                              {game.platform} | {game.gameType}
-                            </p>
-                          </div>
-                        </div>
-                      </button>
-                    </HoverCardTrigger>
-                    <HoverCardContent className="w-80">
-                      <p className="text-gray-600 text-sm mb-2">{game.Notes}</p>
-                    </HoverCardContent>
-                  </HoverCard>
-                ))}
-              </div>
-            ) : (
-              <p className="text-black mt-4">
-                No games found. Try a different search.
-              </p>
-            )}
-          </>
-        )}
-        {selectedGame && (
-          <div className="flex flex-col gap-3 items-center pb-24">
-            <div className="place-items-center font-bold text-3xl text-wrap">
-              Add this game?
-            </div>
-            <HoverCard key={selectedGame.id}>
-              <HoverCardTrigger asChild>
-                <button
-                  style={{ width: "300px", height: "250px" }}
-                  className="text-left bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105"
-                >
-                  <div className="p-4">
+            {games.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {games.map((game) => (
+                  <div
+                    key={game.id}
+                    className="flex flex-col bg-white rounded-lg shadow-md overflow-hidden w-72"
+                  >
                     <div className="relative h-40 w-full">
-                      {selectedGame.gamePicture ? (
+                      {game.gamePicture ? (
                         <Image
-                          src={selectedGame.gamePicture}
-                          alt={selectedGame.gameName}
+                          src={game.gamePicture}
+                          alt={game.gameName}
                           fill
                           className="object-cover"
                         />
@@ -217,63 +147,76 @@ const GameList = () => {
                         </p>
                       )}
                     </div>
-                    <div className="flex flex-col justify-start">
+                    <div className="p-4 flex flex-col gap-2">
                       <p
                         className="font-bold text-purple-800 text-lg truncate"
-                        title={selectedGame.gameName}
+                        title={game.gameName}
                       >
-                        {selectedGame.gameName}
+                        {game.gameName}
                       </p>
-                      <p className="text-gray-600 text-sm">
-                        {selectedGame.platform} | {selectedGame.gameType}
-                      </p>
+                      <p className="text-sm text-gray-600 mb-1">{game.Notes}</p>
+                      <label className="text-sm font-semibold">Platform:</label>
+                      <select
+                        className="border rounded px-2 py-1"
+                        value={platformSelection[game.id] || game.platforms[0]}
+                        onChange={(e) =>
+                          setPlatformSelection((prev) => ({
+                            ...prev,
+                            [game.id]: e.target.value,
+                          }))
+                        }
+                      >
+                        {game.platforms.map((platform) => (
+                          <option key={platform} value={platform}>
+                            {platform}
+                          </option>
+                        ))}
+                      </select>
+                      <label className="text-sm font-semibold mt-2">
+                        Type:
+                      </label>
+                      <select
+                        className="border rounded px-2 py-1"
+                        value={typeSelection[game.id] || "Digital"}
+                        onChange={(e) =>
+                          setTypeSelection((prev) => ({
+                            ...prev,
+                            [game.id]: e.target.value,
+                          }))
+                        }
+                      >
+                        <option value="Digital">Digital</option>
+                        <option value="Physical">Physical</option>
+                      </select>
+                      <button
+                        onClick={() => handleSubmit(game)}
+                        className="mt-3 bg-purple-300 hover:bg-purple-600 text-black font-semibold px-4 py-2 rounded"
+                      >
+                        Add Game
+                      </button>
                     </div>
                   </div>
-                </button>
-              </HoverCardTrigger>
-              <HoverCardContent className="w-80">
-                <p className="text-gray-600 text-sm mb-2">
-                  {selectedGame.Notes}
-                </p>
-              </HoverCardContent>
-            </HoverCard>
-            <div className="place-items-center">
-              <button
-                onClick={handleSubmit}
-                className="place-items-center border-2 rounded px-4 py-2 bg-purple-200 hover:bg-purple-600 text-black"
-              >
-                Submit
-              </button>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <label htmlFor="gameType" className="text-black font-medium">
-                Select Game Type:
-              </label>
-              <select
-                id="gameType"
-                value={gameType}
-                onChange={(e) => setGameType(e.target.value)}
-                className="border rounded px-3 py-2 text-black"
-              >
-                <option value="Digital">Digital</option>
-                <option value="Physical">Physical</option>
-              </select>
-            </div>
-          </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-black mt-4">
+                No games found. Try a different search.
+              </p>
+            )}
+          </>
         )}
       </div>
-
       <p>
         Couldn&#39;t find your game? Add one manually using the{" "}
         <Link
           className="visited:text-purple-700 hover:underline hover:text-blue-600 text-blue-600"
           href="/form"
         >
-          {" "}
           manual form
         </Link>
       </p>
     </div>
   );
 };
+
 export default GameList;
