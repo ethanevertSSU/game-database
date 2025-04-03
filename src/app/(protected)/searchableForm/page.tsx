@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Header from "@/components/Header";
 import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import Link from "next/link";
 import {
   HoverCard,
@@ -135,13 +136,15 @@ const GameList = () => {
                     key={game.id}
                     className="flex flex-col bg-white rounded-lg shadow-md overflow-hidden w-72"
                   >
-                    <div className="relative h-40 w-full">
+                    <div className="flex items-center justify-center bg-black h-[320px] w-full">
                       {game.gamePicture ? (
                         <Image
                           src={game.gamePicture}
                           alt={game.gameName}
-                          fill
-                          className="object-cover"
+                          className="object-contain w-full h-full"
+                          width={0}
+                          height={0}
+                          sizes="100vw"
                         />
                       ) : (
                         <p className="text-center pt-9 text-gray-500">
@@ -217,6 +220,7 @@ const GameList = () => {
           manual form
         </Link>
       </p>
+      <Toaster />
     </div>
   );
 };
