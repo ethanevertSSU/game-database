@@ -1,6 +1,3 @@
-import { auth } from "@/app/lib/auth";
-import { headers } from "next/headers";
-import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 const CLIENT_ID = "bz7ocndodrnlkdpe3venwbqmfuwttm";
