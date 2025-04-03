@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
+        hostname: "images.igdb.com",
+      },
+      {
+        protocol: "https",
         hostname: "upload.wikimedia.org",
         port: "",
         pathname: "/**",
