@@ -1,16 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { NextResponse } from "next/server";
 
 const CLIENT_ID = "bz7ocndodrnlkdpe3venwbqmfuwttm";
 const AUTH_TOKEN = "j7dlfr4o9fnbol7x593n1q66w1ecun";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse,
-) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ message: "Only POST allowed" });
-  }
-
+export async function POST(req: NextApiRequest) {
   const { query } = req.body;
 
   try {
@@ -30,9 +24,12 @@ export default async function handler(
 
     const data = await igdbRes.json();
 
-    res.status(200).json(data);
+    return NextResponse.json({ data: data }, { status: 201 });
   } catch (error) {
     console.error("IGDB fetch failed:", error);
-    res.status(500).json({ error: "IGDB search failed" });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
   }
 }

@@ -21,89 +21,13 @@ type Game = {
   gamePicture: string | null;
 };
 
-// static data
-/*
-const GameList = () => {
-  const [games] = useState<Game[]>([
-    {
-      id: "1",
-      gameName: "Elden Ring",
-      platform: "PC",
-      gameType: "Digital",
-      Notes: "Very challenging",
-      gamePicture: null,
-    },
-    {
-      id: "2",
-      gameName: "Hades",
-      platform: "Switch",
-      gameType: "Digital",
-      Notes: "Fast-paced combat",
-      gamePicture: null,
-    },
-    {
-      id: "3",
-      gameName: "The Legend of Zelda: Breath of the Wild",
-      platform: "Switch",
-      gameType: "Physical",
-      Notes: "Great game!",
-      gamePicture: null,
-    },
-    {
-      id: "4",
-      gameName: "God of War: Ragnarok",
-      platform: "PS5",
-      gameType: "Physical",
-      Notes: "Epic Norse mythology story",
-      gamePicture: null,
-    },
-    {
-      id: "5",
-      gameName: "Hollow Knight",
-      platform: "PC",
-      gameType: "Digital",
-      Notes: "Beautiful and tough platformer",
-      gamePicture: null,
-    },
-    {
-      id: "6",
-      gameName: "The Legend of Zelda: Tears of the Kingdom",
-      platform: "Switch",
-      gameType: "Digital",
-      Notes: "Massive open-world exploration",
-      gamePicture: null,
-    },
-    {
-      id: "7",
-      gameName: "Valorant",
-      platform: "PC",
-      gameType: "Digital",
-      Notes: "Tactical competitive gameplay",
-      gamePicture: null,
-    },
-    {
-      id: "8",
-      gameName: "Final Fantasy VII Remake",
-      platform: "PS4",
-      gameType: "Physical",
-      Notes: "Reimagined classic with real-time combat",
-      gamePicture: null,
-    },
-    {
-      id: "9",
-      gameName: "Stardew Valley",
-      platform: "PC",
-      gameType: "Digital",
-      Notes: "Relaxing farming sim",
-      gamePicture: null,
-    },
-  ]); */
-
 const GameList = () => {
   const [games, setGames] = useState<Game[]>([]);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true); // Track loading state for future api pulls
+  const [error, setError] = useState<string | null>(null); // Track errors
 
   const fetchGames = async (term: string) => {
     setGames([]);
