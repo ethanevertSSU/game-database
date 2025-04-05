@@ -30,7 +30,7 @@ export async function PUT(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const gameId = params.id;
+    const { id: gameId } = await params;
     const body = await req.json();
     const { Notes } = body;
 
@@ -61,10 +61,9 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } },
-) {
+export async function DELETE({ params }: { params: { id: string } }) {
+  const { id: gameId } = await params;
+
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -88,7 +87,7 @@ export async function DELETE(
 
     const deleted = await prisma.game.deleteMany({
       where: {
-        id: params.id,
+        id: gameId,
         userId: user.id,
       },
     });

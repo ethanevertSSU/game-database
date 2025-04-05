@@ -9,14 +9,12 @@ import {
 } from "@/components/ui/hover-card";
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { mutate } from "swr";
 import Link from "next/link";
 import useSWR from "swr";
 import Image from "next/image";
@@ -41,7 +39,10 @@ const GameList = () => {
   const [editedNotes, setEditedNotes] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-  const { data, isLoading } = useSWR<{ game: Game[] }>("/api/library", fetcher);
+  const { data, isLoading, mutate } = useSWR<{ game: Game[] }>(
+    "/api/library",
+    fetcher,
+  );
 
   const games = data?.game || [];
 
@@ -181,10 +182,23 @@ const GameList = () => {
                     },
                   );
 
-                  if (!response.ok) throw new Error("Failed to update");
+                  if (!response.ok) toast("Failed to update");
 
                   toast("Notes updated successfully!");
-                  mutate("/api/library");
+                  await mutate(
+                    (currentData) => {
+                      if (!currentData) return { game: [] };
+                      return {
+                        //getting games and keeping them in the game area, just editing notes
+                        game: currentData.game.map((g) =>
+                          g.id === selectedGame?.id
+                            ? { ...g, Notes: editedNotes }
+                            : g,
+                        ),
+                      };
+                    },
+                    false, //this means no full refresh
+                  );
                   setSelectedGame(null);
                   setEditedNotes("");
                 } catch (error) {
@@ -213,10 +227,15 @@ const GameList = () => {
                       method: "DELETE",
                     });
 
-                    if (!res.ok) throw new Error();
+                    if (!res.ok) toast("Failed to delete game");
 
                     toast("Game deleted.");
-                    mutate("/api/library");
+                    await mutate((currentData) => {
+                      if (!currentData) return { game: [] };
+                      return {
+                        game: currentData.game.map((g) => g),
+                      };
+                    });
                     setSelectedGame(null);
                     setEditedNotes("");
                   } catch (err) {
