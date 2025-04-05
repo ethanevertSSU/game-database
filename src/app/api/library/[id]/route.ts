@@ -65,8 +65,7 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { data } = await req.json();
-  console.log(data);
+  console.log(req);
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
