@@ -202,6 +202,7 @@ const GameList = () => {
                   setSelectedGame(null);
                   setEditedNotes("");
                 } catch (error) {
+                  console.log(error);
                   toast("Something went wrong while updating.");
                 } finally {
                   setIsSaving(false);
@@ -239,6 +240,7 @@ const GameList = () => {
                     setSelectedGame(null);
                     setEditedNotes("");
                   } catch (err) {
+                    console.error(err);
                     toast("Failed to delete the game.");
                   }
                 }}
