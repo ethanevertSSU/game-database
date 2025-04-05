@@ -228,15 +228,22 @@ const GameList = () => {
                       method: "DELETE",
                     });
 
-                    if (!res.ok) toast("Failed to delete game");
+                    if (!res.ok) {
+                      toast("Failed to delete game");
+                      return;
+                    }
 
                     toast("Game deleted.");
+
                     await mutate((currentData) => {
                       if (!currentData) return { game: [] };
                       return {
-                        game: currentData.game.map((g) => g),
+                        game: currentData.game.filter(
+                          (g) => g.id !== selectedGame.id,
+                        ),
                       };
-                    });
+                    }, false);
+
                     setSelectedGame(null);
                     setEditedNotes("");
                   } catch (err) {
