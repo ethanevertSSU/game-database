@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/app/lib/auth";
 import { headers } from "next/headers";
 
@@ -61,7 +61,12 @@ export async function PUT(
   }
 }
 
-export async function DELETE({ params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { data } = await req.json();
+  console.log(data);
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
