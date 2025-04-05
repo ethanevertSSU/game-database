@@ -46,6 +46,8 @@ export default function ProfilePage() {
     try {
       const response = await fetch(`/api/linkedaccounts`, {
         method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accountId }),
       });
 
       console.log(response);
