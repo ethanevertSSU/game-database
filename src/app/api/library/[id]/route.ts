@@ -61,9 +61,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE({ params }: { params: { id: string } }) {
-  const { id: gameId } = await params;
-
+export async function DELETE({ params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -85,6 +83,7 @@ export async function DELETE({ params }: { params: { id: string } }) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    const { id: gameId } = await params;
     const deleted = await prisma.game.deleteMany({
       where: {
         id: gameId,
