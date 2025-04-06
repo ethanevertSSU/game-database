@@ -8,6 +8,22 @@ import Link from "next/link";
 import Image from "next/image";
 import { FaSearch } from "react-icons/fa";
 
+interface Platform {
+  name: string;
+}
+
+interface Cover {
+  image_id: string;
+}
+
+interface IGDBGame {
+  id: number;
+  name: string;
+  platforms?: Platform[];
+  summary?: string;
+  cover?: Cover;
+}
+
 type Game = {
   id: string;
   gameName: string;
@@ -40,9 +56,9 @@ const GameList = () => {
         toast("Failed to fetch from IGDB");
       }
 
-      const data = await response.json();
-      const formattedGames = data.map((game: any) => {
-        const platforms = game.platforms?.map((p: any) => p.name) || [
+      const data: IGDBGame[] = await response.json();
+      const formattedGames: Game[] = data.map((game: IGDBGame) => {
+        const platforms = game.platforms?.map((p: Platform) => p.name) || [
           "Unknown",
         ];
         return {
