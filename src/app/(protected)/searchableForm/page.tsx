@@ -5,11 +5,6 @@ import Header from "@/components/Header";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import Link from "next/link";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
 import Image from "next/image";
 import { FaSearch } from "react-icons/fa";
 
@@ -25,8 +20,6 @@ const GameList = () => {
   const [games, setGames] = useState<Game[]>([]);
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [platformSelection, setPlatformSelection] = useState<
     Record<string, string>
   >({});
@@ -44,7 +37,7 @@ const GameList = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch from IGDB");
+        toast("Failed to fetch from IGDB");
       }
 
       const data = await response.json();
@@ -65,15 +58,13 @@ const GameList = () => {
 
       setGames(formattedGames);
     } catch (err: any) {
-      setError(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
+      toast(err.message || "Something went wrong");
     }
   };
 
   const handleSearch = () => {
     setSearchTerm(searchInput);
-    fetchGames(searchInput);
+    return fetchGames(searchInput);
   };
 
   const handleSubmit = async (game: Game) => {
@@ -94,7 +85,7 @@ const GameList = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to submit");
+        toast("Failed to submit");
       }
 
       toast(
