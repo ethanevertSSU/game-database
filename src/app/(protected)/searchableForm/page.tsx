@@ -73,8 +73,12 @@ const GameList = () => {
       });
 
       setGames(formattedGames);
-    } catch (err: any) {
-      toast(err.message || "Something went wrong");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast(err.message || "Something went wrong");
+      } else {
+        toast("An unknown error occurred");
+      }
     }
   };
 
