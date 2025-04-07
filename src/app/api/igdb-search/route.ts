@@ -4,8 +4,8 @@ const CLIENT_ID = process.env.IGDB_CLIENT_ID as string;
 const AUTH_TOKEN = `Bearer ${process.env.IGDB_AUTH_TOKEN}`;
 
 export async function POST(req: Request) {
-  const body = (await req.json()) as { query: string };
-  const { query } = body;
+  const body = (await req.json()) as { query: string; offset?: number };
+  const { query, offset = 0 } = body;
 
   try {
     const igdbRes = await fetch("https://api.igdb.com/v4/games", {
@@ -19,6 +19,7 @@ export async function POST(req: Request) {
         search "${query}";
         fields name, cover.image_id, platforms.name;
         limit 10;
+        offset ${offset};
       `,
     });
 
