@@ -32,6 +32,7 @@ type Game = {
   gamePicture: string;
 };
 
+// static data
 const GameList = () => {
   const [games, setGames] = useState<Game[]>([]);
   const [searchInput, setSearchInput] = useState("");

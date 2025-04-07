@@ -5,9 +5,9 @@ import { steamLogo } from "../../public/steam";
 
 export default function Home() {
   return (
-    <div className=" bg-purple-400 h-screen grid grid-rows-[auto_1fr_auto] gap-y-36">
+    <div className="bg-purple-400 min-h-screen grid grid-rows-[auto_1fr_auto] gap-y-36">
       <Header />
-      <div className="place-items-center">
+      <div className="place-items-center px-4 sm:px-8">
         <ul className="flex flex-col gap-16 text-center">
           <li className="font-bold text-4xl text-wrap">
             The JEBBS Game Database lets you gather all of your games from
