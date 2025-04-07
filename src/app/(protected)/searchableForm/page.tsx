@@ -5,13 +5,24 @@ import Header from "@/components/Header";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import Link from "next/link";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
 import Image from "next/image";
 import { FaSearch } from "react-icons/fa";
+
+interface Platform {
+  name: string;
+}
+
+interface Cover {
+  image_id: string;
+}
+
+interface IGDBGame {
+  id: number;
+  name: string;
+  platforms?: Platform[];
+  summary?: string;
+  cover?: Cover;
+}
 
 type Game = {
   id: string;
@@ -21,12 +32,11 @@ type Game = {
   gamePicture: string;
 };
 
+// static data
 const GameList = () => {
   const [games, setGames] = useState<Game[]>([]);
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [platformSelection, setPlatformSelection] = useState<
     Record<string, string>
   >({});
@@ -44,12 +54,12 @@ const GameList = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch from IGDB");
+        toast("Failed to fetch from IGDB");
       }
 
-      const data = await response.json();
-      const formattedGames = data.map((game: any) => {
-        const platforms = game.platforms?.map((p: any) => p.name) || [
+      const data: IGDBGame[] = await response.json();
+      const formattedGames: Game[] = data.map((game: IGDBGame) => {
+        const platforms = game.platforms?.map((p: Platform) => p.name) || [
           "Unknown",
         ];
         return {
@@ -64,16 +74,18 @@ const GameList = () => {
       });
 
       setGames(formattedGames);
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast(err.message || "Something went wrong");
+      } else {
+        toast("An unknown error occurred");
+      }
     }
   };
 
   const handleSearch = () => {
     setSearchTerm(searchInput);
-    fetchGames(searchInput);
+    return fetchGames(searchInput);
   };
 
   const handleSubmit = async (game: Game) => {
@@ -94,7 +106,7 @@ const GameList = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to submit");
+        toast("Failed to submit");
       }
 
       toast(

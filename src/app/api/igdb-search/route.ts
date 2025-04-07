@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
-const CLIENT_ID = "bz7ocndodrnlkdpe3venwbqmfuwttm";
-const AUTH_TOKEN = "Bearer j7dlfr4o9fnbol7x593n1q66w1ecun";
+const CLIENT_ID = process.env.IGDB_CLIENT_ID as string;
+const AUTH_TOKEN = `Bearer ${process.env.IGDB_AUTH_TOKEN}`;
 
 export async function POST(req: Request) {
   const body = (await req.json()) as { query: string };
