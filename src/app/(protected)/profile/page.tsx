@@ -28,18 +28,33 @@ type returnURL = {
   url: string;
 };
 
+type mostRecentGame = {
+  gameName: string;
+  appId: number;
+  hours: number;
+  minutes: number;
+};
+
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function ProfilePage() {
-  const { data: returnURL } = useSWR<returnURL>("api/url", fetcher);
   const { data, isLoading } = useSWR("/api/profile", fetcher);
+
+  const { data: returnURL } = useSWR<returnURL>("api/url", fetcher);
+
   const { data: listOfLinkedAccounts, isLoading: loadingLinkedAccounts } =
     useSWR<{ linkedAccounts: link[] }>("/api/linkedaccounts", fetcher);
 
-  console.log(listOfLinkedAccounts);
+  const { data: mostRecentGame, isLoading: loadingRecentGame } = useSWR(
+    "/api/recentGame",
+    fetcher,
+  );
+
+  const recentGames = mostRecentGame ?? [];
+  console.log("recentGames", mostRecentGame);
 
   const steamReturnURL = returnURL?.url;
-  console.log(steamReturnURL);
+  const gamePicture = `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${recentGames.appId}/header.jpg?`;
 
   // Function to handle unlink (DELETE request)
   const handleUnlink = async (accountId: string) => {
@@ -330,13 +345,44 @@ export default function ProfilePage() {
                     <h3 className="text-xl font-semibold text-purple-800 mb-4">
                       Gaming Activity
                     </h3>
-                    <div className="bg-purple-100 rounded-lg p-4">
-                      <div className="h-32 w-full flex items-center justify-center">
-                        <p className="text-purple-700">
-                          Activity chart placeholder
-                        </p>
+                    {loadingRecentGame ? (
+                      <p>Loading Most Recently Played Game...</p>
+                    ) : (
+                      <div className="bg-purple-100 rounded-lg p-4">
+                        <div className="h-32 w-full flex justify-around items-center">
+                          <div className="flex flex-col text-nowrap font-bold">
+                            <h1 className="font-bold text-xl">
+                              Game:
+                              <p className="font-light">
+                                {recentGames.gameName}
+                              </p>
+                            </h1>{" "}
+                            <h1 className="font-bold text-xl">
+                              Time Played:
+                              <p className="font-light">
+                                {recentGames.hours} Hours {recentGames.minutes}{" "}
+                                Minutes
+                              </p>
+                            </h1>
+                          </div>
+                          {
+                            <a
+                              href={`https://store.steampowered.com/app/${recentGames.appId}`}
+                              target="_blank"
+                              className="h-32 w-auto flex items-center justify-end"
+                            >
+                              <Image
+                                src={gamePicture}
+                                alt={recentGames.gameName || " "}
+                                width={300}
+                                height={300}
+                                className="object-cover rounded shadow-lg items-end"
+                              />
+                            </a>
+                          }
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               </div>

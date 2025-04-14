@@ -105,7 +105,7 @@ export const getLastedPlayedSteamGame = async (steamId: string) => {
     params,
   });
 
-  console.log(result.data);
+  console.log("data: ", result.data);
 
   return result.data;
 };

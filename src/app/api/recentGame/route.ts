@@ -28,10 +28,27 @@ export async function GET() {
 
       if (steamAccount) {
         const steamId = steamAccount?.externalPlatformId;
+        const lastGamePlayed = await getLastedPlayedSteamGame(steamId);
+        const lastGame = lastGamePlayed.response.games[0];
 
-        const lastGamePlayed = getLastedPlayedSteamGame(steamId);
-        console.log(lastGamePlayed);
-        return NextResponse.json({ lastGame: lastGamePlayed }, { status: 201 });
+        console.log("game: ", lastGame);
+
+        const gameName = lastGame?.name ?? " ";
+        const appId = lastGame?.appid ?? " ";
+        const fullPlaytime = lastGame?.playtime_forever ?? " ";
+
+        const hours = Math.floor(fullPlaytime / 60);
+        const minutes = fullPlaytime % 60;
+
+        return NextResponse.json(
+          {
+            gameName: gameName,
+            appId: appId,
+            hours: hours,
+            minutes: minutes,
+          },
+          { status: 201 },
+        );
       }
     }
   }
