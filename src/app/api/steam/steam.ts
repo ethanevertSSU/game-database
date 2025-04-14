@@ -77,3 +77,35 @@ export const getSteamGames = async (steamId: string) => {
 
   return result.data;
 };
+
+interface recentlyPlayedGames {
+  response: {
+    total_count: number;
+    games: [
+      {
+        appid: number;
+        name: string;
+        playtime_2weeks: number;
+        playtime_forever: number;
+        img_icon_url: string;
+      },
+    ];
+  };
+}
+
+export const getLastedPlayedSteamGame = async (steamId: string) => {
+  const url = `http://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?`;
+
+  const params = new URLSearchParams();
+  params.append("key", steamKey);
+  params.append("steamid", steamId);
+  params.append("format", "json");
+
+  const result = await axios.get<recentlyPlayedGames>(url, {
+    params,
+  });
+
+  console.log(result.data);
+
+  return result.data;
+};
