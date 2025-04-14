@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Header from "@/components/Header";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-import Link from "next/link";
 import Image from "next/image";
 import { FaSearch } from "react-icons/fa";
 import {
@@ -243,7 +242,7 @@ const GameList = () => {
         <Dialog>
           <DialogTrigger asChild>
             <button className="text-blue-600 hover:underline">
-              <span>{"Add one manually:"}</span>
+              <span>{"Add one manually"}</span>
             </button>
           </DialogTrigger>
 
