@@ -28,13 +28,6 @@ type returnURL = {
   url: string;
 };
 
-type mostRecentGame = {
-  gameName: string;
-  appId: number;
-  hours: number;
-  minutes: number;
-};
-
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function ProfilePage() {
@@ -75,6 +68,7 @@ export default function ProfilePage() {
       // Revalidate data after deletion
       await mutate("/api/linkedaccounts");
       await mutate("/api/profile");
+      await mutate("/api/recentGame");
       toast(`Account removed successfully`);
     } catch (error) {
       console.error("Error unlinking account:", error);
@@ -345,8 +339,15 @@ export default function ProfilePage() {
                     <h3 className="text-xl font-semibold text-purple-800 mb-4">
                       Gaming Activity
                     </h3>
-                    {loadingRecentGame ? (
-                      <p>Loading Most Recently Played Game...</p>
+                    {recentGames.error || loadingRecentGame ? (
+                      <div className="bg-yellow-100 rounded-lg p-4">
+                        <div className="h-32 w-full flex justify-around items-center">
+                          <p className="text-center text-gray-900 text-xl">
+                            No Steam account connected. Link your Steam account
+                            to see your recent gaming activity.
+                          </p>
+                        </div>
+                      </div>
                     ) : (
                       <div className="bg-purple-100 rounded-lg p-4">
                         <div className="h-32 w-full flex justify-around items-center">
@@ -356,7 +357,7 @@ export default function ProfilePage() {
                               <p className="font-light">
                                 {recentGames.gameName}
                               </p>
-                            </h1>{" "}
+                            </h1>
                             <h1 className="font-bold text-xl">
                               Time Played:
                               <p className="font-light">
@@ -365,21 +366,19 @@ export default function ProfilePage() {
                               </p>
                             </h1>
                           </div>
-                          {
-                            <a
-                              href={`https://store.steampowered.com/app/${recentGames.appId}`}
-                              target="_blank"
-                              className="h-32 w-auto flex items-center justify-end"
-                            >
-                              <Image
-                                src={gamePicture}
-                                alt={recentGames.gameName || " "}
-                                width={300}
-                                height={300}
-                                className="object-cover rounded shadow-lg items-end"
-                              />
-                            </a>
-                          }
+                          <a
+                            href={`https://store.steampowered.com/app/${recentGames.appId}`}
+                            target="_blank"
+                            className="h-32 w-auto flex items-center justify-end"
+                          >
+                            <Image
+                              src={gamePicture}
+                              alt={recentGames.gameName || " "}
+                              width={300}
+                              height={300}
+                              className="object-cover rounded shadow-lg items-end"
+                            />
+                          </a>
                         </div>
                       </div>
                     )}
