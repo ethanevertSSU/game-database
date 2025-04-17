@@ -63,17 +63,17 @@ export default function Header() {
               onSubmit={handleSubmit}
               className="flex items-center justify-center"
             >
-              <div className="relative">
+              <div className="relative w-full max-w-xs">
                 <input
                   type="text"
                   placeholder="Search Profiles..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="rounded-full text-black text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 pr-12"
+                  className="rounded-full text-black text-sm sm:text-base h-10  sm:h-12 px-7 sm:px-5 pr-16 overflow-hidden"
                 />
                 <button
                   type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-2 text-black rounded-full"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-9 sm:w-9 bg-white text-black flex items-center justify-center rounded-full"
                 >
                   {search}
                 </button>
