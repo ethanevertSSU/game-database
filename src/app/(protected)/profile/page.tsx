@@ -350,8 +350,8 @@ export default function ProfilePage() {
                           )}
                           {recentGames.status == "401" && (
                             <p className="text-center text-gray-900 text-xl">
-                              No steam activity in tha last 2 weeks, play a game
-                              to see your latest activity!.
+                              No steam activity in the last 2 weeks, play a game
+                              to see your latest activity!
                             </p>
                           )}
                         </div>
