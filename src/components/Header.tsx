@@ -5,6 +5,7 @@ import { authClient } from "@/app/lib/auth-client";
 import useSWR, { mutate } from "swr";
 import { useState } from "react";
 import { search } from "../../public/search";
+import { useRouter } from "next/navigation";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -20,11 +21,15 @@ export default function Header() {
     window.location.reload();
   };
 
+  const router = useRouter();
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
+
     console.log("Search query submitted:", searchQuery);
+    router.push(`profile/${searchQuery}`);
   };
 
   const handleLinkClick = (url: string) => {
