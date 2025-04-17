@@ -54,7 +54,7 @@ export async function GET() {
         } else {
           console.log("no games played in the last 2 weeks");
           return NextResponse.json(
-            { error: "No such game found" },
+            { error: "No such game found", status: 401 },
             { status: 401 },
           );
         }
@@ -62,5 +62,8 @@ export async function GET() {
     }
   }
 
-  return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  return NextResponse.json(
+    { error: "Internal Server Error", status: 500 },
+    { status: 500 },
+  );
 }

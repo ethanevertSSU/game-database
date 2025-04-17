@@ -342,10 +342,18 @@ export default function ProfilePage() {
                     {recentGames.error || loadingRecentGame ? (
                       <div className="bg-yellow-100 rounded-lg p-4">
                         <div className="h-32 w-full flex justify-around items-center">
-                          <p className="text-center text-gray-900 text-xl">
-                            No Steam account connected. Link your Steam account
-                            to see your recent gaming activity.
-                          </p>
+                          {recentGames.status == "500" && (
+                            <p className="text-center text-gray-900 text-xl">
+                              No Steam account connected. Link your Steam
+                              account to see your recent gaming activity.
+                            </p>
+                          )}
+                          {recentGames.status == "401" && (
+                            <p className="text-center text-gray-900 text-xl">
+                              No steam activity in tha last 2 weeks, play a game
+                              to see your latest activity!.
+                            </p>
+                          )}
                         </div>
                       </div>
                     ) : (
