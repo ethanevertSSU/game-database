@@ -98,6 +98,11 @@ export default function ProfilePage() {
     bio: "Avid gamer since 2010. I love RPGs, strategy games, and occasionally dabble in FPS games. Always looking for new gaming buddies!",
   };
 
+  // Bio editing state
+  const [isEditingBio, setIsEditingBio] = React.useState(false);
+  const [editedBio, setEditedBio] = React.useState(data?.user?.bio || user.bio);
+  const [isSavingBio, setIsSavingBio] = React.useState(false);
+
   // Placeholder top games data
   const topGames = [
     {
@@ -195,7 +200,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-purple-400">
       {isLoading ? (
-        <div className=" flex h-screen items-center justify-center font-bold text-3xl">
+        <div className="flex h-screen items-center justify-center font-bold text-3xl">
           Loading Profile...
         </div>
       ) : (
@@ -220,21 +225,16 @@ export default function ProfilePage() {
                     Member since {formattedDate}
                   </p>
 
-                  <div className="grid grid-cols-2 gap-4 w-full max-w-xs text-center">
-                    <div className="bg-purple-100 p-3 rounded-lg">
-                      <p className="text-purple-800 font-bold text-xl">
-                        {user.level}
-                      </p>
-                      <p className="text-purple-600 text-sm">Level</p>
-                    </div>
-                    <div className="bg-purple-100 p-3 rounded-lg">
-                      <p className="text-purple-800 font-bold text-xl">
-                        {data?.numGames}
+                  {/* Replaced grid layout with vertical tabs */}
+                  <div className="flex flex-col w-full max-w-xs text-center">
+                    <div className="bg-purple-100 p-4 rounded-t-lg border-b-2 border-purple-300  ">
+                      <p className="text-purple-800 font-bold text-2xl">
+                        {data?.numGames || 0}
                       </p>
                       <p className="text-purple-600 text-sm">Games</p>
                     </div>
-                    <div className="bg-purple-100 p-3 rounded-lg col-span-2">
-                      <p className="text-purple-800 font-bold text-xl">
+                    <div className="bg-purple-100 p-4 rounded-b-lg">
+                      <p className="text-purple-800 font-bold text-2xl">
                         {user.totalAchievements}
                       </p>
                       <p className="text-purple-600 text-sm">Achievements</p>
@@ -244,10 +244,93 @@ export default function ProfilePage() {
 
                 {/* Bio and Details */}
                 <div className="w-full md:w-2/3">
-                  <h3 className="text-xl font-semibold text-purple-800 mb-2">
-                    About Me
-                  </h3>
-                  <p className="text-gray-700 mb-6">{user.bio}</p>
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-xl font-semibold text-purple-800 mb-2">
+                      About Me
+                    </h3>
+                    <button
+                      onClick={() => {
+                        setIsEditingBio(true);
+                        setEditedBio(data?.user?.bio || user.bio);
+                      }}
+                      className="text-purple-600 hover:text-purple-800 text-sm"
+                    >
+                      Edit Bio
+                    </button>
+                  </div>
+                  <div
+                    className="text-gray-700 mb-6 p-2 border border-transparent hover:border-gray-200 hover:bg-gray-50 rounded cursor-pointer"
+                    onClick={() => {
+                      setIsEditingBio(true);
+                      setEditedBio(data?.user?.bio || user.bio);
+                    }}
+                  >
+                    {data?.user?.bio || user.bio}
+                  </div>
+
+                  {/* Bio Edit Dialog */}
+                  <Dialog
+                    open={isEditingBio}
+                    onOpenChange={(open) => !open && setIsEditingBio(false)}
+                  >
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Edit Your Bio</DialogTitle>
+                      </DialogHeader>
+
+                      <textarea
+                        className="w-full border rounded p-2 text-black mt-2"
+                        value={editedBio}
+                        onChange={(e) => setEditedBio(e.target.value)}
+                        rows={6}
+                        placeholder="Tell us about yourself..."
+                      />
+
+                      <div className="mt-4 flex justify-end gap-2">
+                        <button
+                          onClick={() => {
+                            setIsEditingBio(false);
+                            setEditedBio(data?.user?.bio || user.bio);
+                          }}
+                          className="text-sm text-gray-500 hover:underline"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          disabled={isSavingBio}
+                          onClick={async () => {
+                            setIsSavingBio(true);
+                            try {
+                              const response = await fetch("/api/profile/bio", {
+                                method: "PUT",
+                                headers: {
+                                  "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({ bio: editedBio }),
+                              });
+
+                              if (!response.ok) toast("Failed to update bio");
+
+                              // Update local state and close dialog
+                              await mutate("/api/profile");
+                              toast("Bio updated successfully!");
+                              setIsEditingBio(false);
+                            } catch (error) {
+                              console.error("Error updating bio:", error);
+                              toast(
+                                "Something went wrong while updating your bio.",
+                              );
+                            } finally {
+                              setIsSavingBio(false);
+                            }
+                          }}
+                          className="text-sm bg-purple-600 hover:bg-purple-800 text-white px-3 py-1 rounded"
+                        >
+                          {isSavingBio ? "Saving..." : "Save"}
+                        </button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                   {loadingLinkedAccounts ? (
                     <p>Loading Steam Info...</p>
                   ) : (
