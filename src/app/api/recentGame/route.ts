@@ -29,29 +29,41 @@ export async function GET() {
       if (steamAccount) {
         const steamId = steamAccount?.externalPlatformId;
         const lastGamePlayed = await getLastedPlayedSteamGame(steamId);
-        const lastGame = lastGamePlayed.response.games[0];
 
-        console.log("game: ", lastGame);
+        if (lastGamePlayed.response.games) {
+          const lastGame = lastGamePlayed.response.games[0];
 
-        const gameName = lastGame?.name ?? " ";
-        const appId = lastGame?.appid ?? " ";
-        const fullPlaytime = lastGame?.playtime_forever ?? " ";
+          console.log("game: ", lastGame);
 
-        const hours = Math.floor(fullPlaytime / 60);
-        const minutes = fullPlaytime % 60;
+          const gameName = lastGame?.name ?? " ";
+          const appId = lastGame?.appid ?? " ";
+          const fullPlaytime = lastGame?.playtime_forever ?? " ";
 
-        return NextResponse.json(
-          {
-            gameName: gameName,
-            appId: appId,
-            hours: hours,
-            minutes: minutes,
-          },
-          { status: 201 },
-        );
+          const hours = Math.floor(fullPlaytime / 60);
+          const minutes = fullPlaytime % 60;
+
+          return NextResponse.json(
+            {
+              gameName: gameName,
+              appId: appId,
+              hours: hours,
+              minutes: minutes,
+            },
+            { status: 201 },
+          );
+        } else {
+          console.log("no games played in the last 2 weeks");
+          return NextResponse.json(
+            { error: "No such game found", status: 401 },
+            { status: 401 },
+          );
+        }
       }
     }
   }
 
-  return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  return NextResponse.json(
+    { error: "Internal Server Error", status: 500 },
+    { status: 500 },
+  );
 }
