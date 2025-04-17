@@ -23,7 +23,6 @@ export async function POST(req: Request) {
     });
 
     const data = await igdbRes.json();
-    console.log(data);
 
     return NextResponse.json(data, { status: 201 });
   } catch (error) {
