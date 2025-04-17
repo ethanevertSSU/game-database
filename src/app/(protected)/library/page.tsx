@@ -19,6 +19,7 @@ import Link from "next/link";
 import useSWR from "swr";
 import Image from "next/image";
 import { Toaster } from "@/components/ui/sonner";
+import { FaStar } from "react-icons/fa";
 
 type Game = {
   id: string;
@@ -27,17 +28,30 @@ type Game = {
   gameType: string;
   Notes: string | null;
   gamePicture: string | null;
+  status: string;
 };
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const GameList = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  // For sorting games
+  const [sortOrder, setSortOrder] = useState<
+    "asc" | "desc" | "status-asc" | "status-desc"
+  >("asc");
 
   // used for editing the notes of a game
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  const [editedStatus, setEditedStatus] = useState("Not Started");
   const [editedNotes, setEditedNotes] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+
+  React.useEffect(() => {
+    if (selectedGame) {
+      setEditedNotes(selectedGame.Notes || "");
+      setEditedStatus(selectedGame.status || "Not Started");
+    }
+  }, [selectedGame]);
 
   const { data, isLoading, mutate } = useSWR<{ game: Game[] }>(
     "/api/library",
@@ -46,18 +60,38 @@ const GameList = () => {
 
   const games = data?.game || [];
 
+  const statusOrder: Record<string, number> = {
+    "Not Started": 0,
+    "On Hold": 1,
+    Playing: 2,
+    Completed: 3,
+  };
+
   const handleSearch = (event: {
     target: { value: React.SetStateAction<string> };
   }) => {
     setSearchTerm(event.target.value);
   };
 
-  const filteredGames = games.filter(
-    (game) =>
-      game.gameName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      game.platform.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      game.gameType.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const filteredGames = [...games]
+    .filter(
+      (game) =>
+        game.gameName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        game.platform.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        game.gameType.toLowerCase().includes(searchTerm.toLowerCase()),
+    )
+    .sort((a, b) => {
+      if (sortOrder === "asc") {
+        return a.gameName.localeCompare(b.gameName);
+      } else if (sortOrder === "desc") {
+        return b.gameName.localeCompare(a.gameName);
+      } else if (sortOrder === "status-asc") {
+        return statusOrder[a.status] - statusOrder[b.status];
+      } else if (sortOrder === "status-desc") {
+        return statusOrder[b.status] - statusOrder[a.status];
+      }
+      return 0;
+    });
 
   return (
     <div className="flex flex-col gap-3 h-screen items-center justify-top bg-purple-400">
@@ -69,13 +103,25 @@ const GameList = () => {
       )}
       {!isLoading && games.length > 0 && (
         <div className="flex flex-col gap-3 w-full items-center justify-top bg-purple-400">
-          <input
-            className="border-3 rounded px-3 py-2 text-black"
-            type="text"
-            placeholder="Search games..."
-            value={searchTerm}
-            onChange={handleSearch}
-          />
+          <div className="flex items-center gap-4 mb-2">
+            <input
+              className="border rounded px-3 py-2 text-black"
+              type="text"
+              placeholder="Search games..."
+              value={searchTerm}
+              onChange={handleSearch}
+            />
+            <select
+              className="border rounded px-3 py-2 text-black"
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as any)}
+            >
+              <option value="asc">Sort A–Z</option>
+              <option value="desc">Sort Z–A</option>
+              <option value="status-asc">Sort by Status (Progression)</option>
+              <option value="status-desc">Sort by Status (Completion)</option>
+            </select>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {filteredGames.map((game) => (
               <HoverCard key={game.id}>
@@ -114,6 +160,22 @@ const GameList = () => {
                         </p>
                         <p className="text-gray-700 text-sm">
                           {game.platform} | {game.gameType}
+                        </p>
+                        <p
+                          className={`text-sm italic flex items-center gap-1 ${
+                            game.status === "Completed"
+                              ? "text-green-600"
+                              : game.status === "Playing"
+                                ? "text-blue-600"
+                                : game.status === "On Hold"
+                                  ? "text-yellow-600"
+                                  : "text-gray-600"
+                          }`}
+                        >
+                          Status: {game.status}
+                          {game.status === "Completed" && (
+                            <FaStar className="text-yellow-400" />
+                          )}
                         </p>
                       </div>
                     </div>
@@ -154,11 +216,24 @@ const GameList = () => {
             rows={4}
           />
 
+          <label className="text-sm font-semibold mt-2">Game Status:</label>
+          <select
+            className="w-full border rounded p-2 text-black mt-1"
+            value={editedStatus}
+            onChange={(e) => setEditedStatus(e.target.value)}
+          >
+            <option value="Not Started">Not Started</option>
+            <option value="Playing">Playing</option>
+            <option value="Completed">Completed</option>
+            <option value="On Hold">On Hold</option>
+          </select>
+
           {/* Inline Save / Cancel */}
           <div className="mt-4 flex justify-end gap-2">
             <button
               onClick={() => {
                 setSelectedGame(null);
+                setEditedStatus("Not Started");
                 setEditedNotes("");
               }}
               className="text-sm text-gray-500 hover:underline"
@@ -177,7 +252,10 @@ const GameList = () => {
                       headers: {
                         "Content-Type": "application/json",
                       },
-                      body: JSON.stringify({ Notes: editedNotes }),
+                      body: JSON.stringify({
+                        Notes: editedNotes,
+                        status: editedStatus,
+                      }),
                     },
                   );
 
@@ -191,7 +269,7 @@ const GameList = () => {
                         //getting games and keeping them in the game area, just editing notes
                         game: currentData.game.map((g) =>
                           g.id === selectedGame?.id
-                            ? { ...g, Notes: editedNotes }
+                            ? { ...g, Notes: editedNotes, status: editedStatus }
                             : g,
                         ),
                       };
@@ -200,6 +278,7 @@ const GameList = () => {
                   );
                   setSelectedGame(null);
                   setEditedNotes("");
+                  setEditedStatus("Not Started");
                 } catch (error) {
                   console.log(error);
                   toast("Something went wrong while updating.");
@@ -245,6 +324,7 @@ const GameList = () => {
 
                     setSelectedGame(null);
                     setEditedNotes("");
+                    setEditedStatus("Not Started");
                   } catch (err) {
                     console.error(err);
                     toast("Failed to delete the game.");

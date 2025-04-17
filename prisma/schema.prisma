@@ -76,6 +76,7 @@ model Game {
   gamePicture String?   @map("game_picture")
   platform    String    @map("game_platform")
   gameType    String    @map("game_type")
+  status      String    @default("Not Started") @map("game_status")
   updatedAt   DateTime? @updatedAt @map("updated_at")
   userId      String    @map("user_id")
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
