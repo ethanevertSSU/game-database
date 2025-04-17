@@ -200,7 +200,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-purple-400">
       {isLoading ? (
-        <div className=" flex h-screen items-center justify-center font-bold text-3xl">
+        <div className="flex h-screen items-center justify-center font-bold text-3xl">
           Loading Profile...
         </div>
       ) : (
@@ -226,8 +226,8 @@ export default function ProfilePage() {
                   </p>
 
                   {/* Replaced grid layout with vertical tabs */}
-                  <div className="flex flex-col w-full max-w-xs">
-                    <div className="bg-purple-100 p-4 rounded-t-lg border-b-2 border-purple-300">
+                  <div className="flex flex-col w-full max-w-xs text-center">
+                    <div className="bg-purple-100 p-4 rounded-t-lg border-b-2 border-purple-300  ">
                       <p className="text-purple-800 font-bold text-2xl">
                         {data?.numGames || 0}
                       </p>
