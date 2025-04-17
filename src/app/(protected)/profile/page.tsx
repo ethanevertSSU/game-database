@@ -31,15 +31,23 @@ type returnURL = {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function ProfilePage() {
-  const { data: returnURL } = useSWR<returnURL>("api/url", fetcher);
   const { data, isLoading } = useSWR("/api/profile", fetcher);
+
+  const { data: returnURL } = useSWR<returnURL>("api/url", fetcher);
+
   const { data: listOfLinkedAccounts, isLoading: loadingLinkedAccounts } =
     useSWR<{ linkedAccounts: link[] }>("/api/linkedaccounts", fetcher);
 
-  console.log(listOfLinkedAccounts);
+  const { data: mostRecentGame, isLoading: loadingRecentGame } = useSWR(
+    "/api/recentGame",
+    fetcher,
+  );
+
+  const recentGames = mostRecentGame ?? [];
+  console.log("recentGames", mostRecentGame);
 
   const steamReturnURL = returnURL?.url;
-  console.log(steamReturnURL);
+  const gamePicture = `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${recentGames.appId}/header.jpg?`;
 
   // Function to handle unlink (DELETE request)
   const handleUnlink = async (accountId: string) => {
@@ -60,6 +68,7 @@ export default function ProfilePage() {
       // Revalidate data after deletion
       await mutate("/api/linkedaccounts");
       await mutate("/api/profile");
+      await mutate("/api/recentGame");
       toast(`Account removed successfully`);
     } catch (error) {
       console.error("Error unlinking account:", error);
@@ -88,6 +97,11 @@ export default function ProfilePage() {
     totalAchievements: 384,
     bio: "Avid gamer since 2010. I love RPGs, strategy games, and occasionally dabble in FPS games. Always looking for new gaming buddies!",
   };
+
+  // Bio editing state
+  const [isEditingBio, setIsEditingBio] = React.useState(false);
+  const [editedBio, setEditedBio] = React.useState(data?.user?.bio || user.bio);
+  const [isSavingBio, setIsSavingBio] = React.useState(false);
 
   // Placeholder top games data
   const topGames = [
@@ -211,21 +225,16 @@ export default function ProfilePage() {
                     Member since {formattedDate}
                   </p>
 
-                  <div className="grid grid-cols-2 gap-4 w-full max-w-xs text-center">
-                    <div className="bg-purple-100 p-3 rounded-lg">
-                      <p className="text-purple-800 font-bold text-xl">
-                        {user.level}
-                      </p>
-                      <p className="text-purple-600 text-sm">Level</p>
-                    </div>
-                    <div className="bg-purple-100 p-3 rounded-lg">
-                      <p className="text-purple-800 font-bold text-xl">
-                        {data?.numGames}
+                  {/* Replaced grid layout with vertical tabs */}
+                  <div className="flex flex-col w-full max-w-xs">
+                    <div className="bg-purple-100 p-4 rounded-t-lg border-b-2 border-purple-300">
+                      <p className="text-purple-800 font-bold text-2xl">
+                        {data?.numGames || 0}
                       </p>
                       <p className="text-purple-600 text-sm">Games</p>
                     </div>
-                    <div className="bg-purple-100 p-3 rounded-lg col-span-2">
-                      <p className="text-purple-800 font-bold text-xl">
+                    <div className="bg-purple-100 p-4 rounded-b-lg">
+                      <p className="text-purple-800 font-bold text-2xl">
                         {user.totalAchievements}
                       </p>
                       <p className="text-purple-600 text-sm">Achievements</p>
@@ -235,10 +244,93 @@ export default function ProfilePage() {
 
                 {/* Bio and Details */}
                 <div className="w-full md:w-2/3">
-                  <h3 className="text-xl font-semibold text-purple-800 mb-2">
-                    About Me
-                  </h3>
-                  <p className="text-gray-700 mb-6">{user.bio}</p>
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-xl font-semibold text-purple-800 mb-2">
+                      About Me
+                    </h3>
+                    <button
+                      onClick={() => {
+                        setIsEditingBio(true);
+                        setEditedBio(data?.user?.bio || user.bio);
+                      }}
+                      className="text-purple-600 hover:text-purple-800 text-sm"
+                    >
+                      Edit Bio
+                    </button>
+                  </div>
+                  <div
+                    className="text-gray-700 mb-6 p-2 border border-transparent hover:border-gray-200 hover:bg-gray-50 rounded cursor-pointer"
+                    onClick={() => {
+                      setIsEditingBio(true);
+                      setEditedBio(data?.user?.bio || user.bio);
+                    }}
+                  >
+                    {data?.user?.bio || user.bio}
+                  </div>
+
+                  {/* Bio Edit Dialog */}
+                  <Dialog
+                    open={isEditingBio}
+                    onOpenChange={(open) => !open && setIsEditingBio(false)}
+                  >
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Edit Your Bio</DialogTitle>
+                      </DialogHeader>
+
+                      <textarea
+                        className="w-full border rounded p-2 text-black mt-2"
+                        value={editedBio}
+                        onChange={(e) => setEditedBio(e.target.value)}
+                        rows={6}
+                        placeholder="Tell us about yourself..."
+                      />
+
+                      <div className="mt-4 flex justify-end gap-2">
+                        <button
+                          onClick={() => {
+                            setIsEditingBio(false);
+                            setEditedBio(data?.user?.bio || user.bio);
+                          }}
+                          className="text-sm text-gray-500 hover:underline"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          disabled={isSavingBio}
+                          onClick={async () => {
+                            setIsSavingBio(true);
+                            try {
+                              const response = await fetch("/api/profile/bio", {
+                                method: "PUT",
+                                headers: {
+                                  "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({ bio: editedBio }),
+                              });
+
+                              if (!response.ok) toast("Failed to update bio");
+
+                              // Update local state and close dialog
+                              await mutate("/api/profile");
+                              toast("Bio updated successfully!");
+                              setIsEditingBio(false);
+                            } catch (error) {
+                              console.error("Error updating bio:", error);
+                              toast(
+                                "Something went wrong while updating your bio.",
+                              );
+                            } finally {
+                              setIsSavingBio(false);
+                            }
+                          }}
+                          className="text-sm bg-purple-600 hover:bg-purple-800 text-white px-3 py-1 rounded"
+                        >
+                          {isSavingBio ? "Saving..." : "Save"}
+                        </button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                   {loadingLinkedAccounts ? (
                     <p>Loading Steam Info...</p>
                   ) : (
@@ -330,13 +422,49 @@ export default function ProfilePage() {
                     <h3 className="text-xl font-semibold text-purple-800 mb-4">
                       Gaming Activity
                     </h3>
-                    <div className="bg-purple-100 rounded-lg p-4">
-                      <div className="h-32 w-full flex items-center justify-center">
-                        <p className="text-purple-700">
-                          Activity chart placeholder
-                        </p>
+                    {recentGames.error || loadingRecentGame ? (
+                      <div className="bg-yellow-100 rounded-lg p-4">
+                        <div className="h-32 w-full flex justify-around items-center">
+                          <p className="text-center text-gray-900 text-xl">
+                            No Steam account connected. Link your Steam account
+                            to see your recent gaming activity.
+                          </p>
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="bg-purple-100 rounded-lg p-4">
+                        <div className="h-32 w-full flex justify-around items-center">
+                          <div className="flex flex-col text-nowrap font-bold">
+                            <h1 className="font-bold text-xl">
+                              Game:
+                              <p className="font-light">
+                                {recentGames.gameName}
+                              </p>
+                            </h1>
+                            <h1 className="font-bold text-xl">
+                              Time Played:
+                              <p className="font-light">
+                                {recentGames.hours} Hours {recentGames.minutes}{" "}
+                                Minutes
+                              </p>
+                            </h1>
+                          </div>
+                          <a
+                            href={`https://store.steampowered.com/app/${recentGames.appId}`}
+                            target="_blank"
+                            className="h-32 w-auto flex items-center justify-end"
+                          >
+                            <Image
+                              src={gamePicture}
+                              alt={recentGames.gameName || " "}
+                              width={300}
+                              height={300}
+                              className="object-cover rounded shadow-lg items-end"
+                            />
+                          </a>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
