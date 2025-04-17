@@ -3,6 +3,8 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { authClient } from "@/app/lib/auth-client";
 import useSWR, { mutate } from "swr";
+import { useState } from "react";
+import { search } from "../../public/search";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -16,6 +18,13 @@ export default function Header() {
   const handleLogout = async () => {
     await authClient.signOut();
     window.location.reload();
+  };
+
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSubmit = (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    console.log("Search query submitted:", searchQuery);
   };
 
   const handleLinkClick = (url: string) => {
@@ -50,11 +59,26 @@ export default function Header() {
       <div className="flex space-x-4">
         {isLoggedIn ? (
           <>
-            <input
-              type="text"
-              placeholder="Search Profiles..."
-              className="rounded-full text-black text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 flex items-center justify-center whitespace-normal"
-            ></input>
+            <form
+              onSubmit={handleSubmit}
+              className="flex items-center justify-center"
+            >
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search Profiles..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="rounded-full text-black text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 pr-12"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-2 text-black rounded-full"
+                >
+                  {search}
+                </button>
+              </div>
+            </form>
             <Link
               onClick={() => handleLinkClick("/library")}
               href="/library"
