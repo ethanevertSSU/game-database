@@ -50,12 +50,15 @@ export default function Header() {
       <div className="flex space-x-4">
         {isLoggedIn ? (
           <>
+            <input
+              type="text"
+              placeholder="Search Profiles..."
+              className="rounded-full text-black text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 flex items-center justify-center whitespace-normal"
+            ></input>
             <Link
               onClick={() => handleLinkClick("/library")}
               href="/library"
               className="rounded-full bg-purple-700 hover:bg-purple-600 text-white text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 flex items-center justify-center text-center whitespace-normal"
-
-              //className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#6e33ff] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
             >
               Game Library
             </Link>
