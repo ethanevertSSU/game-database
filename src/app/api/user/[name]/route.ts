@@ -5,7 +5,7 @@ import { getLastedPlayedSteamGame } from "@/app/api/steam/steam";
 const prisma = new PrismaClient();
 export async function GET(
   req: NextRequest,
-  { params }: { params: { name: string } },
+  { params }: { params: Promise<{ name: string }> },
 ) {
   const { name } = await params;
   console.log(req);
