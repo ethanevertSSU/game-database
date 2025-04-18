@@ -26,7 +26,6 @@ export async function GET() {
         },
       });
 
-      console.log(getLinkedAccounts);
       return NextResponse.json(
         { linkedAccounts: getLinkedAccounts },
         { status: 201 },
