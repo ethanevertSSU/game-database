@@ -48,6 +48,7 @@ const GameList = () => {
   const [manualNotes, setManualNotes] = useState("");
   const [manualError, setManualError] = useState("");
   const [manualOtherPlatformValue, setManualOtherPlatformValue] = useState("");
+  const [manualStatus, setManualStatus] = useState("Not Started");
   const [games, setGames] = useState<Game[]>([]);
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -273,6 +274,7 @@ const GameList = () => {
                           : manualPlatform,
                       physOrDig: manualType,
                       notes: manualNotes,
+                      status: manualStatus,
                     }),
                   });
 
@@ -293,6 +295,7 @@ const GameList = () => {
                   setManualShowOtherInput(false);
                   setManualError("");
                   setManualOtherPlatformValue("");
+                  setManualStatus("Not Started");
                 } catch (error) {
                   console.error("Manual form error:", error);
                   setManualError("Something went wrong");
@@ -356,7 +359,21 @@ const GameList = () => {
                 />{" "}
                 Digital
               </label>
+              <label className="text-sm font-semibold mt-2">Game Status:</label>
+              <select
+                className="border rounded px-2 py-1 text-black"
+                value={manualStatus}
+                onChange={(e) => setManualStatus(e.target.value)}
+              >
+                <option value="Not Started">Not Started</option>
+                <option value="Playing">Playing</option>
+                <option value="Completed">Completed</option>
+                <option value="On Hold">On Hold</option>
+              </select>
 
+              <label className="text-sm font-semibold mt-2">
+                Additional Notes:
+              </label>
               <textarea
                 placeholder="Notes"
                 value={manualNotes}
