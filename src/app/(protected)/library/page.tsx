@@ -36,9 +36,8 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 const GameList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   // For sorting games
-  const [sortOrder, setSortOrder] = useState<
-    "asc" | "desc" | "status-asc" | "status-desc"
-  >("asc");
+  type sortedOrder = "asc" | "desc" | "status-asc" | "status-desc";
+  const [sortOrder, setSortOrder] = useState<sortedOrder>("asc");
 
   // used for editing the notes of a game
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
@@ -114,7 +113,7 @@ const GameList = () => {
             <select
               className="border rounded px-3 py-2 text-black"
               value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value as any)}
+              onChange={(e) => setSortOrder(e.target.value as sortedOrder)}
             >
               <option value="asc">Sort A–Z</option>
               <option value="desc">Sort Z–A</option>
