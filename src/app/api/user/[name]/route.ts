@@ -8,6 +8,7 @@ export async function GET(
   { params }: { params: { name: string } },
 ) {
   const { name } = await params;
+  console.log(req);
 
   //user id
   const user = await prisma.user.findFirst({

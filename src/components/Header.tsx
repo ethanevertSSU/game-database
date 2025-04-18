@@ -27,9 +27,8 @@ export default function Header() {
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
-
     console.log("Search query submitted:", searchQuery);
-    router.push(`profile/${searchQuery}`);
+    if (searchQuery) router.push(`/profile/${searchQuery}`);
   };
 
   const handleLinkClick = (url: string) => {
