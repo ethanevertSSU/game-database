@@ -51,8 +51,8 @@ export default function Page({
           {!data.user ? (
             <div className="flex flex-1 items-center justify-center">
               <div className=" text-3xl text-center">
-                User <p className="font-bold inline">"{name}"</p> not found,
-                please search again.
+                User <p className="font-bold inline">&ldquo;{name}&ldquo;</p>{" "}
+                not found, please search again.
                 <div className="pt-3">
                   <p className="font-bold inline">NOTE</p>: Usernames Are Case
                   Sensitive.
