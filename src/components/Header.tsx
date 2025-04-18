@@ -3,6 +3,9 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { authClient } from "@/app/lib/auth-client";
 import useSWR, { mutate } from "swr";
+import { useState } from "react";
+import { search } from "../../public/search";
+import { useRouter } from "next/navigation";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -16,6 +19,16 @@ export default function Header() {
   const handleLogout = async () => {
     await authClient.signOut();
     window.location.reload();
+  };
+
+  const router = useRouter();
+
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSubmit = (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    console.log("Search query submitted:", searchQuery);
+    if (searchQuery) router.push(`/profile/${searchQuery}`);
   };
 
   const handleLinkClick = (url: string) => {
@@ -50,12 +63,30 @@ export default function Header() {
       <div className="flex space-x-4">
         {isLoggedIn ? (
           <>
+            <form
+              onSubmit={handleSubmit}
+              className="flex items-center justify-center"
+            >
+              <div className="relative w-full max-w-xs">
+                <input
+                  type="text"
+                  placeholder="Search Profiles..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="rounded-full text-black text-sm sm:text-base h-10  sm:h-12 px-7 sm:px-5 pr-16 overflow-hidden"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-9 sm:w-9 bg-white text-black flex items-center justify-center rounded-full"
+                >
+                  {search}
+                </button>
+              </div>
+            </form>
             <Link
               onClick={() => handleLinkClick("/library")}
               href="/library"
               className="rounded-full bg-purple-700 hover:bg-purple-600 text-white text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 flex items-center justify-center text-center whitespace-normal"
-
-              //className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#6e33ff] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
             >
               Game Library
             </Link>

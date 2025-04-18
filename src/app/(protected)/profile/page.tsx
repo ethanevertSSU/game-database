@@ -80,11 +80,10 @@ export default function ProfilePage() {
   const userDate = data?.user?.createdAt;
   const date = new Date(userDate);
 
-  const day = date.getDay();
   const month = date.getMonth() + 1;
+  const day = date.getDate();
   const year = date.getFullYear();
-
-  const formattedDate = `${day}/${month}/${year}`;
+  const formattedDate = `${month}/${day}/${year}`;
 
   // Placeholder user data
   const user = {
