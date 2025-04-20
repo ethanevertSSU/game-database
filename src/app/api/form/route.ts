@@ -20,7 +20,7 @@ export async function POST(req: Request) {
         },
       });
 
-      const { gameName, platform, physOrDig, notes, gamePicture } =
+      const { gameName, platform, physOrDig, notes, gamePicture, status } =
         await req.json();
       if (user) {
         const newGame = await prisma.game.create({
@@ -30,6 +30,7 @@ export async function POST(req: Request) {
             gameType: physOrDig,
             Notes: notes,
             gamePicture,
+            status: status,
             user: {
               connect: { id: user.id },
             },

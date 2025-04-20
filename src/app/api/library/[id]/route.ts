@@ -32,15 +32,16 @@ export async function PUT(
 
     const { id: gameId } = await params;
     const body = await req.json();
-    const { Notes } = body;
+    const { Notes, status } = body;
 
     const updatedGame = await prisma.game.updateMany({
       where: {
         id: gameId,
-        userId: user.id, // ensures users can only update their own games
+        userId: user.id,
       },
       data: {
         Notes,
+        status,
       },
     });
 
