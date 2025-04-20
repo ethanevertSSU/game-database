@@ -18,6 +18,15 @@ export async function POST(req: Request) {
     (achievement) => achievement.achieved === 1,
   );
 
+  const user = await prisma.user.findFirst({
+    where: {
+      name: username,
+    },
+  });
+
+  if (!user)
+    return NextResponse.json({ error: "No user found" }, { status: 501 });
+
   const game = await prisma.game.findFirst({
     where: {
       externalAppId: appId,
@@ -30,7 +39,7 @@ export async function POST(req: Request) {
   if (!game)
     return NextResponse.json(
       { error: "No game found with matching id" },
-      { status: 500 },
+      { status: 501 },
     );
 
   let numAchievements = 0;
@@ -39,6 +48,12 @@ export async function POST(req: Request) {
   //b/c there is no functionality currently to delete achievements, also if you delete the game
   //the achievements for that game also get deleted
   const checkAchievements = unlockedAchievements[0];
+
+  if (!checkAchievements)
+    return NextResponse.json(
+      { error: `No achievements unlocked for ${game.gameName}` },
+      { status: 501 },
+    );
 
   const exists = await prisma.achievement.findFirst({
     where: {
@@ -50,25 +65,31 @@ export async function POST(req: Request) {
   if (exists)
     return NextResponse.json(
       { error: "Achievements already added" },
-      { status: 500 },
+      { status: 501 },
     );
 
   for (const a of unlockedAchievements) {
-    console.log(`Achievement added: ${a.name} | ${a.description}`);
+    // console.log(
+    //   `Achievement added: ${game.gameName} | ${a.name} | ${a.description}`,
+    // );
     await prisma.achievement.create({
       data: {
+        gameNameAchievements: game.gameName,
         achievementName: a.name,
         achievementDesc: a.description,
         unlockTime: a.unlocktime,
         achievement: {
           connect: { id: game.id },
         },
+        User: {
+          connect: { id: user.id },
+        },
       },
     });
     numAchievements++;
   }
 
-  console.log(numAchievements);
+  // console.log(numAchievements);
 
   return NextResponse.json(
     { numAchievements: numAchievements },

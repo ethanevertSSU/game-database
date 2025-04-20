@@ -28,6 +28,19 @@ type returnURL = {
   url: string;
 };
 
+type games = {
+  id: string;
+  status: string;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+  userId: string;
+  gameName: string;
+  platform: string;
+  gamePicture: string | null;
+  Notes: string | null;
+  gameType: string;
+  externalAppId: string | null;
+};
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function ProfilePage() {
@@ -97,16 +110,22 @@ export default function ProfilePage() {
         body: JSON.stringify({ appId, steamId }),
       });
 
-      if (!response.ok) {
-        toast(`Failed to add achievement for game: ${gameName}`);
+      if (response.status === 500) {
+        toast(`Failed to add achievement for ${gameName}`);
         return;
       }
 
       const data = await response.json();
 
+      if (data?.error) {
+        toast(data?.error);
+        return;
+      }
+
       toast(
         `Successfully added ${data?.numAchievements} achievements from ${gameName}`,
       );
+      await mutate("/api/profile");
     } catch (error) {
       console.error("Error adding achievement:", error);
     }
@@ -189,50 +208,6 @@ export default function ProfilePage() {
     },
   ];
 
-  // Placeholder achievements data
-  const achievements = [
-    {
-      id: "1",
-      title: "Marathon Gamer",
-      description: "Played for 24 hours straight",
-      unlockedDate: "2023-07-15",
-      rarity: "Rare",
-      game: "Elden Ring",
-    },
-    {
-      id: "2",
-      title: "Completionist",
-      description: "Completed all side quests in a single game",
-      unlockedDate: "2023-09-22",
-      rarity: "Legendary",
-      game: "The Witcher 3: Wild Hunt",
-    },
-    {
-      id: "3",
-      title: "First Day Adopter",
-      description: "Played a game on its release day",
-      unlockedDate: "2024-01-30",
-      rarity: "Common",
-      game: "Baldur's Gate 3",
-    },
-    {
-      id: "4",
-      title: "Social Butterfly",
-      description: "Added 50 friends to your network",
-      unlockedDate: "2023-11-05",
-      rarity: "Uncommon",
-      game: "Global",
-    },
-    {
-      id: "5",
-      title: "Night Owl",
-      description: "Played between 2AM and 4AM",
-      unlockedDate: "2024-02-18",
-      rarity: "Common",
-      game: "Cyberpunk 2077",
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-purple-400">
       {isLoading ? (
@@ -271,7 +246,7 @@ export default function ProfilePage() {
                     </div>
                     <div className="bg-purple-100 p-4 rounded-b-lg">
                       <p className="text-purple-800 font-bold text-2xl">
-                        {user.totalAchievements}
+                        {data?.numAchievements || 0}
                       </p>
                       <p className="text-purple-600 text-sm">Achievements</p>
                     </div>
@@ -408,7 +383,7 @@ export default function ProfilePage() {
                                       <div className="overflow-scroll max-w-full max-h-[600px]">
                                         {listOfGames?.games?.[
                                           link.externalPlatformUserName
-                                        ]?.map((game) => (
+                                        ]?.map((game: games) => (
                                           <div
                                             key={game.gameName}
                                             className=" py-[1px]"
@@ -452,8 +427,8 @@ export default function ProfilePage() {
                                   </DialogTitle>
                                   <DialogDescription>
                                     Unlinking this steam account will remove all
-                                    games in your library that are associated
-                                    with this steam account!
+                                    games and achievements in your library that
+                                    are associated with this steam account!
                                   </DialogDescription>
                                   <button
                                     type="button"
@@ -617,54 +592,60 @@ export default function ProfilePage() {
               <h2 className="text-2xl font-bold text-purple-900 mb-4">
                 Recent Achievements
               </h2>
-              <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                {achievements.map((achievement, index) => (
-                  <div
-                    key={achievement.id}
-                    className={`p-4 flex items-start gap-4 ${
-                      index < achievements.length - 1
-                        ? "border-b border-gray-200"
-                        : ""
-                    }`}
-                  >
-                    <div className="bg-purple-200 rounded-full p-3 h-12 w-12 flex items-center justify-center flex-shrink-0">
-                      <span className="text-purple-700 text-xl">🏆</span>
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex justify-between">
-                        <h3 className="font-bold text-purple-800">
-                          {achievement.title}
-                        </h3>
-                        <span
-                          className={`px-2 py-1 rounded text-xs ${
-                            achievement.rarity === "Common"
-                              ? "bg-gray-200 text-gray-700"
-                              : achievement.rarity === "Uncommon"
-                                ? "bg-green-200 text-green-800"
-                                : achievement.rarity === "Rare"
-                                  ? "bg-blue-200 text-blue-800"
-                                  : "bg-purple-200 text-purple-800"
-                          }`}
-                        >
-                          {achievement.rarity}
-                        </span>
-                      </div>
-                      <p className="text-gray-600 text-sm">
-                        {achievement.description}
+              {data?.achievements.length === 0 ? (
+                <div className="bg-yellow-100 rounded-lg p-4">
+                  <div className="h-32 w-full flex justify-around items-center">
+                    {linkedAccounts?.length === 0 ? (
+                      <p className="text-center text-gray-900 text-xl">
+                        No Steam account connected. Link your Steam account to
+                        see your recent gaming activity.
                       </p>
-                      <div className="flex justify-between mt-1 text-xs text-gray-500">
-                        <span>{achievement.game}</span>
-                        <span>
-                          Unlocked:{" "}
-                          {new Date(
-                            achievement.unlockedDate,
-                          ).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
+                    ) : (
+                      <p className="text-center text-gray-900 text-xl">
+                        No achievements added yet. Click on add achievements and
+                        choose a game to see your recent achievements.
+                      </p>
+                    )}
                   </div>
-                ))}
-              </div>
+                </div>
+              ) : (
+                <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                  {[...data?.achievements]
+                    .sort((a, b) => b.unlockTime - a.unlockTime)
+                    .slice(0, 5)
+                    .map((a, index) => (
+                      <div
+                        key={a.id}
+                        className={`p-4 flex items-start gap-4 ${
+                          index < a.length - 1 ? "border-b border-gray-200" : ""
+                        }`}
+                      >
+                        <div className="bg-purple-200 rounded-full p-3 h-12 w-12 flex items-center justify-center flex-shrink-0">
+                          <span className="text-purple-700 text-xl">🏆</span>
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex justify-between">
+                            <h3 className="font-bold text-purple-800">
+                              {a.achievementName}
+                            </h3>
+                          </div>
+                          <p className="text-gray-600 text-sm">
+                            {a.achievementDesc}
+                          </p>
+                          <div className="flex justify-between mt-1 text-xs text-gray-500">
+                            <span>{a.gameNameAchievements}</span>
+                            <span>
+                              Unlocked:{" "}
+                              {new Date(
+                                a.unlockTime * 1000,
+                              ).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
