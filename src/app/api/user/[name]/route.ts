@@ -85,6 +85,7 @@ export async function GET(
       linkedAccounts: linkedAccounts,
       achievements: achievements,
       numGames: numGames,
+      numAchievements: achievements.length,
       ...(lastSteamGamePlayed && { lastSteamGamePlayed }),
     },
     { status: 200 },

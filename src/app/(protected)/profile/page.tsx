@@ -343,10 +343,10 @@ export default function ProfilePage() {
                     </DialogContent>
                   </Dialog>
                   {loadingLinkedAccounts ? (
-                    <p>Loading Steam Info...</p>
+                    <div>Loading Steam Info...</div>
                   ) : (
                     <div className="inline-flex flex-col">
-                      <p className="font-bold">Linked Accounts: </p>
+                      <div className="font-bold">Linked Accounts: </div>
                       {linkedAccounts.map((link) => (
                         <div
                           key={link.id}
@@ -364,9 +364,9 @@ export default function ProfilePage() {
                             </a>
                             <Dialog>
                               <DialogTrigger>
-                                <p className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">
+                                <div className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">
                                   Add Achievements
-                                </p>
+                                </div>
                               </DialogTrigger>
                               <DialogContent className="max-w-3xl w-full">
                                 <DialogHeader>
@@ -374,43 +374,43 @@ export default function ProfilePage() {
                                   <DialogDescription>
                                     Please pick the specific games you would
                                     like to have achievements added.
-                                    {listOfGames?.error ? (
-                                      <p>
-                                        NO GAMES, PLEASE MAKE SURE YOUR ACCOUNT
-                                        IS ON A PUBLIC STATUS
-                                      </p>
-                                    ) : (
-                                      <div className="overflow-scroll max-w-full max-h-[600px]">
-                                        {listOfGames?.games?.[
-                                          link.externalPlatformUserName
-                                        ]?.map((game: games) => (
-                                          <div
-                                            key={game.gameName}
-                                            className=" py-[1px]"
-                                          >
-                                            <div className="flex flex-row justify-between items-center rounded bg-gray-200 py-2">
-                                              <div className="text-nowrap font-bold hover:underline">
-                                                {game.gameName}
-                                              </div>
-                                              <button
-                                                type="button"
-                                                onClick={() =>
-                                                  handleAchievementAdd(
-                                                    game.externalAppId as string,
-                                                    link.externalPlatformId,
-                                                    game.gameName,
-                                                  )
-                                                }
-                                                className="text-nowrap bg-green-600 text-white px-2 py-2 rounded-md hover:bg-green-700 transition"
-                                              >
-                                                Add Achievements
-                                              </button>
-                                            </div>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    )}
                                   </DialogDescription>
+                                  {listOfGames?.error ? (
+                                    <div>
+                                      NO GAMES, PLEASE MAKE SURE YOUR ACCOUNT IS
+                                      ON A PUBLIC STATUS
+                                    </div>
+                                  ) : (
+                                    <div className="overflow-scroll max-w-full max-h-[600px]">
+                                      {listOfGames?.games?.[
+                                        link.externalPlatformUserName
+                                      ]?.map((game: games) => (
+                                        <div
+                                          key={game.gameName}
+                                          className=" py-[1px]"
+                                        >
+                                          <div className="flex flex-row justify-between items-center rounded bg-gray-200 py-2">
+                                            <div className="text-nowrap font-bold hover:underline">
+                                              {game.gameName}
+                                            </div>
+                                            <button
+                                              type="button"
+                                              onClick={() =>
+                                                handleAchievementAdd(
+                                                  game.externalAppId as string,
+                                                  link.externalPlatformId,
+                                                  game.gameName,
+                                                )
+                                              }
+                                              className="text-nowrap bg-green-600 text-white px-2 py-2 rounded-md hover:bg-green-700 transition"
+                                            >
+                                              Add Achievements
+                                            </button>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
                                 </DialogHeader>
                               </DialogContent>
                             </Dialog>
@@ -596,15 +596,15 @@ export default function ProfilePage() {
                 <div className="bg-yellow-100 rounded-lg p-4">
                   <div className="h-32 w-full flex justify-around items-center">
                     {linkedAccounts?.length === 0 ? (
-                      <p className="text-center text-gray-900 text-xl">
+                      <div className="text-center text-gray-900 text-xl">
                         No Steam account connected. Link your Steam account to
                         see your recent gaming activity.
-                      </p>
+                      </div>
                     ) : (
-                      <p className="text-center text-gray-900 text-xl">
+                      <div className="text-center text-gray-900 text-xl">
                         No achievements added yet. Click on add achievements and
                         choose a game to see your recent achievements.
-                      </p>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -625,13 +625,13 @@ export default function ProfilePage() {
                         </div>
                         <div className="flex-1">
                           <div className="flex justify-between">
-                            <h3 className="font-bold text-purple-800">
+                            <div className="font-bold text-purple-800">
                               {a.achievementName}
-                            </h3>
+                            </div>
                           </div>
-                          <p className="text-gray-600 text-sm">
+                          <div className="text-gray-600 text-sm">
                             {a.achievementDesc}
-                          </p>
+                          </div>
                           <div className="flex justify-between mt-1 text-xs text-gray-500">
                             <span>{a.gameNameAchievements}</span>
                             <span>
