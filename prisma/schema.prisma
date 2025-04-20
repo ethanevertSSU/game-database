@@ -8,18 +8,19 @@ datasource db {
 }
 
 model User {
-  id            String    @id
-  name          String
-  email         String    @unique
-  emailVerified Boolean
-  image         String?
-  createdAt     DateTime
-  updatedAt     DateTime
-  bio           String?
-  accounts      Account[]
-  Game          Game[]
+  id             String           @id
+  name           String
+  email          String           @unique
+  emailVerified  Boolean
+  image          String?
+  createdAt      DateTime
+  updatedAt      DateTime
+  bio            String?
+  accounts       Account[]
+  Game           Game[]
   LinkedAccounts LinkedAccounts[]
-  sessions      Session[]
+  sessions       Session[]
+  Achievements   Achievement[]
 
   @@map("user")
 }
@@ -69,30 +70,47 @@ model Verification {
 }
 
 model Game {
-  id          String    @id @default(cuid())
-  createdAt   DateTime? @default(now()) @map("created_at")
-  gameName    String    @map("game_name")
-  Notes       String?   @map("game_notes")
-  gamePicture String?   @map("game_picture")
-  platform    String    @map("game_platform")
-  gameType    String    @map("game_type")
-  status      String    @default("Not Started") @map("game_status")
-  updatedAt   DateTime? @updatedAt @map("updated_at")
-  userId      String    @map("user_id")
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            String        @id @default(cuid())
+  createdAt     DateTime?     @default(now()) @map("created_at")
+  gameName      String        @map("game_name")
+  Notes         String?       @map("game_notes")
+  gamePicture   String?       @map("game_picture")
+  platform      String        @map("game_platform")
+  gameType      String        @map("game_type")
+  status        String        @default("Not Started") @map("game_status")
+  updatedAt     DateTime?     @updatedAt @map("updated_at")
+  userId        String        @map("user_id")
+  externalAppId String?       @map("external_app_id")
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievements  Achievement[]
 
   @@map("game")
 }
 
 model LinkedAccounts {
-  id          String    @id @default(cuid())
-  createdAt   DateTime? @default(now()) @map("created_at")
-  updatedAt   DateTime? @updatedAt @map("updated_at")
-  externalPlatformId String @map("external_platform_id")
-  externalPlatformUserName String @map("external_platform_user_name")
-  platformName String @map("platform_name")
-  userId      String    @map("user_id")
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                       String    @id @default(cuid())
+  createdAt                DateTime? @default(now()) @map("created_at")
+  updatedAt                DateTime? @updatedAt @map("updated_at")
+  externalPlatformId       String    @map("external_platform_id")
+  externalPlatformUserName String    @map("external_platform_user_name")
+  platformName             String    @map("platform_name")
+  userId                   String    @map("user_id")
+  user                     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("linked_accounts")
+}
+
+model Achievement {
+  id                   String    @id @default(cuid())
+  createdAt            DateTime? @default(now()) @map("created_at")
+  updatedAt            DateTime? @updatedAt @map("updated_at")
+  gameNameAchievements String    @map("game_name_achievements")
+  unlockTime           Int       @map("unlock_time")
+  achievementName      String    @map("achievement_name")
+  achievementDesc      String    @map("achievement_desc")
+  achievementPicture   String?   @map("achievement_picture")
+  gameId               String    @map("achievment_id")
+  userId               String    @map("user_id")
+  achievement          Game      @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  User                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
