@@ -142,7 +142,7 @@ const GameList = () => {
                             src={game.gamePicture}
                             alt={game.gameName}
                             fill
-                            className="object-cover rounded shadow-2xl"
+                            className={`${game?.platform?.includes("Steam") ? "rounded w-[300px] h-[250px] shadow-2xl" : " object-scale-down w-[300px] h-[250px]"}`}
                           />
                         ) : (
                           <p className="text-center pt-9 text-gray-500">
