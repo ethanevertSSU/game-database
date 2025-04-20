@@ -47,20 +47,31 @@ export async function POST(req: Request) {
     },
   });
 
-  unlockedAchievements.map(async (a) => {
-    if (!exists) {
-      await prisma.achievement.create({
-        data: {
-          achievementName: a.name,
-          achievementDesc: a.description,
-          unlockTime: a.unlocktime,
-          achievement: {
-            connect: { id: game.id },
-          },
+  if (exists)
+    return NextResponse.json(
+      { error: "Achievements already added" },
+      { status: 500 },
+    );
+
+  for (const a of unlockedAchievements) {
+    console.log(`Achievement added: ${a.name} | ${a.description}`);
+    await prisma.achievement.create({
+      data: {
+        achievementName: a.name,
+        achievementDesc: a.description,
+        unlockTime: a.unlocktime,
+        achievement: {
+          connect: { id: game.id },
         },
-      });
-      numAchievements++;
-    }
-  });
+      },
+    });
+    numAchievements++;
+  }
+
   console.log(numAchievements);
+
+  return NextResponse.json(
+    { numAchievements: numAchievements },
+    { status: 201 },
+  );
 }

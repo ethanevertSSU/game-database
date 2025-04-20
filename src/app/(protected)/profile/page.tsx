@@ -97,14 +97,16 @@ export default function ProfilePage() {
         body: JSON.stringify({ appId, steamId }),
       });
 
-      console.log(response);
-
       if (!response.ok) {
         toast(`Failed to add achievement for game: ${gameName}`);
         return;
       }
 
-      toast(`Successfully added achievement for game: ${gameName}`);
+      const data = await response.json();
+
+      toast(
+        `Successfully added ${data?.numAchievements} achievements from ${gameName}`,
+      );
     } catch (error) {
       console.error("Error adding achievement:", error);
     }
