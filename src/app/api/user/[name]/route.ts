@@ -29,6 +29,13 @@ export async function GET(
 
   const numGames = games.length;
 
+  //achievements
+  const achievements = await prisma.achievement.findMany({
+    where: {
+      userId: user.id,
+    },
+  });
+
   //linkAccountId
   const linkedAccounts = await prisma.linkedAccounts.findMany({
     where: {
@@ -76,7 +83,9 @@ export async function GET(
         bio: user.bio,
       },
       linkedAccounts: linkedAccounts,
+      achievements: achievements,
       numGames: numGames,
+      numAchievements: achievements.length,
       ...(lastSteamGamePlayed && { lastSteamGamePlayed }),
     },
     { status: 200 },
