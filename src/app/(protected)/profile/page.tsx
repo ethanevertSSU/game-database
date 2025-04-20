@@ -42,9 +42,19 @@ export default function ProfilePage() {
     "/api/recentGame",
     fetcher,
   );
+  const linkedAccountNames =
+    listOfLinkedAccounts?.linkedAccounts.map(
+      (link) => link.externalPlatformUserName,
+    ) || [];
+
+  const { data: listOfGames } = useSWR(
+    `/api/getGames/${linkedAccountNames}`,
+    fetcher,
+  );
+
+  console.log(listOfGames);
 
   const recentGames = mostRecentGame ?? [];
-  console.log("recentGames", mostRecentGame);
 
   const steamReturnURL = returnURL?.url;
   const gamePicture = `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${recentGames.appId}/header.jpg?`;
@@ -72,6 +82,31 @@ export default function ProfilePage() {
       toast(`Account removed successfully`);
     } catch (error) {
       console.error("Error unlinking account:", error);
+    }
+  };
+
+  const handleAchievementAdd = async (
+    appId: string,
+    steamId: string,
+    gameName: string,
+  ) => {
+    try {
+      const response = await fetch("/api/getAchievements", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ appId, steamId }),
+      });
+
+      console.log(response);
+
+      if (!response.ok) {
+        toast(`Failed to add achievement for game: ${gameName}`);
+        return;
+      }
+
+      toast(`Successfully added achievement for game: ${gameName}`);
+    } catch (error) {
+      console.error("Error adding achievement:", error);
     }
   };
 
@@ -350,6 +385,58 @@ export default function ProfilePage() {
                               {" "}
                               {link.externalPlatformUserName}
                             </a>
+                            <Dialog>
+                              <DialogTrigger>
+                                <p className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">
+                                  Add Achievements
+                                </p>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-3xl w-full">
+                                <DialogHeader>
+                                  <DialogTitle>Add Achievements</DialogTitle>
+                                  <DialogDescription>
+                                    Please pick the specific games you would
+                                    like to have achievements added.
+                                    {listOfGames?.error ? (
+                                      <p>
+                                        NO GAMES, PLEASE MAKE SURE YOUR ACCOUNT
+                                        IS ON A PUBLIC STATUS
+                                      </p>
+                                    ) : (
+                                      <div className="overflow-scroll max-w-full max-h-[600px]">
+                                        {listOfGames?.games?.[
+                                          link.externalPlatformUserName
+                                        ]?.map((game) => (
+                                          <div
+                                            key={game.gameName}
+                                            className=" py-[1px]"
+                                          >
+                                            <div className="flex flex-row justify-between items-center rounded bg-gray-200 py-2">
+                                              <div className="text-nowrap font-bold hover:underline">
+                                                {game.gameName}
+                                              </div>
+                                              <button
+                                                type="button"
+                                                onClick={() =>
+                                                  handleAchievementAdd(
+                                                    game.externalAppId as string,
+                                                    link.externalPlatformId,
+                                                    game.gameName,
+                                                  )
+                                                }
+                                                className="text-nowrap bg-green-600 text-white px-2 py-2 rounded-md hover:bg-green-700 transition"
+                                              >
+                                                Add Achievements
+                                              </button>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </DialogDescription>
+                                </DialogHeader>
+                              </DialogContent>
+                            </Dialog>
                             <Dialog>
                               <DialogTrigger>
                                 <p className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition">

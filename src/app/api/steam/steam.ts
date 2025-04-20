@@ -35,8 +35,6 @@ export const getSteamPlayerInfo = async (steamId: string) => {
     params,
   });
 
-  console.log(result.data);
-
   return result.data;
 };
 
@@ -73,8 +71,6 @@ export const getSteamGames = async (steamId: string) => {
     params,
   });
 
-  console.log(result.data);
-
   return result.data;
 };
 
@@ -105,7 +101,43 @@ export const getLastedPlayedSteamGame = async (steamId: string) => {
     params,
   });
 
-  console.log("data: ", JSON.stringify(result.data, null, 2));
+  return result.data;
+};
+
+interface achievements {
+  playerstats: {
+    steamID: string;
+    gameName: string;
+    achievements: [
+      {
+        apiname: string;
+        achieved: number;
+        unlockTime: number;
+        name: string;
+        description: string;
+      },
+    ];
+  };
+}
+
+export const getAchievementSteamGame = async (
+  steamId: string,
+  appId: string,
+) => {
+  const url = `http://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v0001/?`;
+
+  const params = new URLSearchParams();
+
+  console.log(`${steamId}, ${appId}`);
+
+  params.append("key", steamKey);
+  params.append("steamid", steamId);
+  params.append("appid", appId);
+  params.append("l", "true");
+
+  const result = await axios.get<achievements>(url, {
+    params,
+  });
 
   return result.data;
 };
