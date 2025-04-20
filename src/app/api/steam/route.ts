@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
           const gamePlatform = `Steam (PC): ${steamUsername}`;
           const physOrDig = "digital";
           const gamePicture = `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${game.appid}/header.jpg?`;
-          const appId = game.appid;
+          const appId = game.appid.toString();
 
           await prisma.game.create({
             data: {
