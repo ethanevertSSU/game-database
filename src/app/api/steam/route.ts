@@ -70,6 +70,7 @@ export async function GET(req: NextRequest) {
           const gamePlatform = `Steam (PC): ${steamUsername}`;
           const physOrDig = "digital";
           const gamePicture = `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${game.appid}/header.jpg?`;
+          const appId = game.appid;
 
           await prisma.game.create({
             data: {
@@ -77,6 +78,7 @@ export async function GET(req: NextRequest) {
               platform: gamePlatform,
               gameType: physOrDig,
               gamePicture: gamePicture,
+              externalAppId: appId,
               user: {
                 connect: { id: user.id },
               },
