@@ -33,8 +33,6 @@ export async function GET() {
         if (lastGamePlayed.response.games) {
           const lastGame = lastGamePlayed.response.games[0];
 
-          console.log("game: ", lastGame);
-
           const gameName = lastGame?.name ?? " ";
           const appId = lastGame?.appid ?? " ";
           const fullPlaytime = lastGame?.playtime_forever ?? " ";

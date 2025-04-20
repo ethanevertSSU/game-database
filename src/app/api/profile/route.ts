@@ -27,10 +27,22 @@ export async function GET() {
           },
         });
 
+        const achievements = await prisma.achievement.findMany({
+          where: {
+            userId: user.id,
+          },
+        });
+
         const numGames = games.length;
+        const numAchievements = achievements.length;
 
         return NextResponse.json(
-          { numGames: numGames, user: user },
+          {
+            numGames: numGames,
+            numAchievements: numAchievements,
+            achievements: achievements,
+            user: user,
+          },
           { status: 201 },
         );
       }
