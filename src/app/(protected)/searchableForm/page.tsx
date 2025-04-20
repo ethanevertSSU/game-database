@@ -45,11 +45,41 @@ type Game = {
   gamePicture: string;
 };
 
+const allGenres = [
+  "Action",
+  "Adventure",
+  "Arcade",
+  "Board Game",
+  "Card & Board Game",
+  "Casual",
+  "Fighting",
+  "Indie",
+  "Platform",
+  "Puzzle",
+  "Racing",
+  "Real Time Strategy (RTS)",
+  "Role-playing (RPG)",
+  "Shooter",
+  "Simulator",
+  "Sport",
+  "Strategy",
+  "Tactical",
+  "Turn-based strategy (TBS)",
+  "Visual Novel",
+  "Hack and slash/Beat 'em up",
+  "Quiz/Trivia",
+  "Pinball",
+  "Music",
+  "MOBA",
+  "Point-and-click",
+];
+
 const GameList = () => {
   const [manualGameName, setManualGameName] = useState("");
   const [manualPlatform, setManualPlatform] = useState("");
   const [manualShowOtherInput, setManualShowOtherInput] = useState(false);
   const [manualType, setManualType] = useState("");
+  const [manualGenres, setManualGenres] = useState<string[]>([]);
   const [manualNotes, setManualNotes] = useState("");
   const [manualError, setManualError] = useState("");
   const [manualOtherPlatformValue, setManualOtherPlatformValue] = useState("");
@@ -266,7 +296,162 @@ const GameList = () => {
               <DialogTitle>Enter Game Manually</DialogTitle>
             </DialogHeader>
 
-            {/* Manual form continues unchanged */}
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setManualError("");
+
+                if (!manualGameName || !manualPlatform || !manualType) {
+                  setManualError("Please fill out all required fields.");
+                  return;
+                }
+
+                try {
+                  const res = await fetch("/api/form", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      gameName: manualGameName,
+                      platform:
+                        manualPlatform === "other"
+                          ? manualOtherPlatformValue
+                          : manualPlatform,
+                      physOrDig: manualType,
+                      notes: manualNotes,
+                      status: manualStatus,
+                      genres: manualGenres,
+                    }),
+                  });
+
+                  const data = await res.json();
+
+                  if (!res.ok) {
+                    setManualError(data.error);
+                    return;
+                  }
+
+                  toast(`Added ${manualGameName} to your library`);
+
+                  // Reset form
+                  setManualGameName("");
+                  setManualPlatform("");
+                  setManualType("");
+                  setManualNotes("");
+                  setManualShowOtherInput(false);
+                  setManualError("");
+                  setManualOtherPlatformValue("");
+                  setManualStatus("Not Started");
+                } catch (error) {
+                  console.error("Manual form error:", error);
+                  setManualError("Something went wrong");
+                }
+              }}
+              className="flex flex-col gap-2 mt-2"
+            >
+              <input
+                type="text"
+                placeholder="Game Name"
+                value={manualGameName}
+                onChange={(e) => setManualGameName(e.target.value)}
+                className="border rounded px-3 py-2 text-black"
+              />
+
+              <select
+                value={manualPlatform}
+                onChange={(e) => {
+                  const selectedValue = e.target.value;
+                  setManualPlatform(selectedValue);
+                  setManualShowOtherInput(selectedValue === "other");
+                }}
+                className="border rounded px-3 py-2 text-black"
+              >
+                <option value="">-- Choose a platform --</option>
+                <option value="PC">PC</option>
+                <option value="Playstation 5">Playstation 5</option>
+                <option value="XBOX Series X">XBOX Series X</option>
+                <option value="Nintendo Switch">Nintendo Switch</option>
+                <option value="other">Other</option>
+              </select>
+
+              {manualShowOtherInput && (
+                <input
+                  type="text"
+                  placeholder="Enter your platform"
+                  value={manualOtherPlatformValue}
+                  onChange={(e) => setManualOtherPlatformValue(e.target.value)}
+                  className="border rounded px-3 py-2 text-black"
+                />
+              )}
+
+              <div className="text-sm font-semibold mt-2">
+                Physical or Digital?
+              </div>
+              <label>
+                <input
+                  type="radio"
+                  value="Physical"
+                  checked={manualType === "Physical"}
+                  onChange={(e) => setManualType(e.target.value)}
+                />{" "}
+                Physical
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  value="Digital"
+                  checked={manualType === "Digital"}
+                  onChange={(e) => setManualType(e.target.value)}
+                />{" "}
+                Digital
+              </label>
+              <label className="text-sm font-semibold mt-2">Game Status:</label>
+              <select
+                className="border rounded px-2 py-1 text-black"
+                value={manualStatus}
+                onChange={(e) => setManualStatus(e.target.value)}
+              >
+                <option value="Not Started">Not Started</option>
+                <option value="Playing">Playing</option>
+                <option value="Completed">Completed</option>
+                <option value="On Hold">On Hold</option>
+              </select>
+
+              <label className="text-sm font-semibold mt-2">Genre:</label>
+              <select
+                className="border rounded px-2 py-1 text-black"
+                value={manualGenres[0] || ""}
+                onChange={(e) => setManualGenres([e.target.value])}
+              >
+                <option value="">-- Choose a genre --</option>
+                {allGenres.map((genre) => (
+                  <option key={genre} value={genre}>
+                    {genre}
+                  </option>
+                ))}
+              </select>
+
+              <label className="text-sm font-semibold mt-2">
+                Additional Notes:
+              </label>
+              <textarea
+                placeholder="Notes"
+                value={manualNotes}
+                onChange={(e) => setManualNotes(e.target.value)}
+                className="border rounded px-3 py-2 text-black"
+                rows={3}
+              />
+
+              {manualError && <p className="text-red-500">{manualError}</p>}
+
+              <DialogFooter>
+                <button
+                  type="submit"
+                  className="bg-purple-600 hover:bg-purple-800 text-white px-4 py-2 rounded"
+                >
+                  Submit
+                </button>
+              </DialogFooter>
+            </form>
           </DialogContent>
         </Dialog>
       </p>
