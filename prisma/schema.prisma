@@ -69,18 +69,19 @@ model Verification {
 }
 
 model Game {
-  id            String    @id @default(cuid())
-  createdAt     DateTime? @default(now()) @map("created_at")
-  gameName      String    @map("game_name")
-  Notes         String?   @map("game_notes")
-  gamePicture   String?   @map("game_picture")
-  platform      String    @map("game_platform")
-  gameType      String    @map("game_type")
-  status        String    @default("Not Started") @map("game_status")
-  updatedAt     DateTime? @updatedAt @map("updated_at")
-  userId        String    @map("user_id")
-  externalAppId String?   @map("external_app_id")
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            String        @id @default(cuid())
+  createdAt     DateTime?     @default(now()) @map("created_at")
+  gameName      String        @map("game_name")
+  Notes         String?       @map("game_notes")
+  gamePicture   String?       @map("game_picture")
+  platform      String        @map("game_platform")
+  gameType      String        @map("game_type")
+  status        String        @default("Not Started") @map("game_status")
+  updatedAt     DateTime?     @updatedAt @map("updated_at")
+  userId        String        @map("user_id")
+  externalAppId String?       @map("external_app_id")
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievements  Achievement[]
 
   @@map("game")
 }
@@ -96,4 +97,16 @@ model LinkedAccounts {
   user                     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("linked_accounts")
+}
+
+model Achievement {
+  id                 String    @id @default(cuid())
+  createdAt          DateTime? @default(now()) @map("created_at")
+  updatedAt          DateTime? @updatedAt @map("updated_at")
+  unlockTime         Int       @map("unlock_time")
+  achievementName    String    @map("achievement_name")
+  achievementDesc    String    @map("achievement_desc")
+  achievementPicture String?   @map("achievement_picture")
+  gameId             String    @map("achievment_id")
+  achievement        Game      @relation(fields: [gameId], references: [id], onDelete: Cascade)
 }

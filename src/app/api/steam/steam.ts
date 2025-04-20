@@ -112,7 +112,7 @@ interface achievements {
       {
         apiname: string;
         achieved: number;
-        unlockTime: number;
+        unlocktime: number;
         name: string;
         description: string;
       },
