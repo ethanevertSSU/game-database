@@ -338,45 +338,64 @@ export default function ProfilePage() {
                       {linkedAccounts.map((link) => (
                         <div
                           key={link.id}
-                          className="inline-flex justify-between items-center gap-4 border rounded bg-gray-200"
+                          className="inline-flex justify-between items-center gap-4 border rounded bg-gray-200 p-2"
                         >
-                          <div className="flex items-center justify-between gap-4 border rounded bg-gray-200 p-1 ">
-                            <svg className="size-7">{steamIcon} </svg>
+                          <div className="flex items-center gap-4">
+                            {link.platformName === "Steam" && (
+                              <svg className="size-7">{steamIcon}</svg>
+                            )}
+                            {link.platformName === "Xbox" && (
+                              <svg
+                                className="size-7 text-green-600"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                              >
+                                <path d="M12 2C6.477 2 2 6.478 2 12c0 3.37 1.66 6.362 4.215 8.204a24.663 24.663 0 0 1 2.929-4.03l-3.59-4.293a10.076 10.076 0 0 1 2.01-1.317l2.735 3.27c.526-.6 1.1-1.16 1.718-1.676L9.485 8.447a9.905 9.905 0 0 1 4.537 0l-2.53 3.211a23.733 23.733 0 0 1 1.719 1.676l2.735-3.27a10.04 10.04 0 0 1 2.01 1.316l-3.59 4.293a24.663 24.663 0 0 1 2.929 4.03A9.977 9.977 0 0 0 22 12c0-5.522-4.478-10-10-10z" />
+                              </svg>
+                            )}
+
                             <a
                               className="font-bold text-blue-500 hover:text-blue-700 focus:outline-none focus:shadow-outline hover:underline visited:text-purple-700"
                               target="_blank"
-                              href={`https://steamcommunity.com/profiles/${link.externalPlatformId}`}
+                              href={
+                                link.platformName === "Steam"
+                                  ? `https://steamcommunity.com/profiles/${link.externalPlatformId}`
+                                  : `https://account.xbox.com/en-us/profile?gamertag=${encodeURIComponent(
+                                      link.externalPlatformUserName,
+                                    )}`
+                              }
                             >
-                              {" "}
                               {link.externalPlatformUserName}
                             </a>
-                            <Dialog>
-                              <DialogTrigger>
-                                <p className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition">
-                                  unlink
-                                </p>
-                              </DialogTrigger>
-                              <DialogContent>
-                                <DialogHeader>
-                                  <DialogTitle>
-                                    Unlinking Steam Account
-                                  </DialogTitle>
-                                  <DialogDescription>
-                                    Unlinking this steam account will remove all
-                                    games in your library that are associated
-                                    with this steam account!
-                                  </DialogDescription>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleUnlink(link.id)}
-                                    className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
-                                  >
-                                    I understand, unlink my steam account
-                                  </button>
-                                </DialogHeader>
-                              </DialogContent>
-                            </Dialog>
                           </div>
+
+                          <Dialog>
+                            <DialogTrigger>
+                              <p className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition">
+                                Unlink
+                              </p>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>
+                                  Unlinking {link.platformName} Account
+                                </DialogTitle>
+                                <DialogDescription>
+                                  This will remove all games from your library
+                                  associated with this {link.platformName}{" "}
+                                  account.
+                                </DialogDescription>
+                                <button
+                                  type="button"
+                                  onClick={() => handleUnlink(link.id)}
+                                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
+                                >
+                                  I understand, unlink my {link.platformName}{" "}
+                                  account
+                                </button>
+                              </DialogHeader>
+                            </DialogContent>
+                          </Dialog>
                         </div>
                       ))}
                       <Dialog>
@@ -410,6 +429,33 @@ export default function ProfilePage() {
                                 href={`https://steamcommunity.com/openid/login?openid.mode=checkid_setup&openid.ns=http://specs.openid.net/auth/2.0&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select&openid.identity=http://specs.openid.net/auth/2.0/identifier_select&openid.return_to=${steamReturnURL}/api/steam/`}
                               >
                                 I Understand, Link Steam Account
+                              </Link>
+                            </button>
+                          </DialogHeader>
+                        </DialogContent>
+                      </Dialog>
+                      <Dialog>
+                        <DialogTrigger>
+                          <p className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">
+                            Link Microsoft Account
+                          </p>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Link Your Xbox Account</DialogTitle>
+                            <DialogDescription className="font-medium">
+                              This will allow JEBBS Game Database to access your
+                              Xbox profile and import your games.
+                              <br />
+                              <br />
+                              You'll be redirected to Microsoft to authorize
+                              access.
+                            </DialogDescription>
+                            <button className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">
+                              <Link
+                                href={`https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=${process.env.NEXT_PUBLIC_XBOX_CLIENT_ID}&response_type=code&redirect_uri=${process.env.NEXT_PUBLIC_XBOX_REDIRECT_URI}&scope=XboxLive.signin%20XboxLive.offline_access`}
+                              >
+                                I Understand, Link Xbox Account
                               </Link>
                             </button>
                           </DialogHeader>

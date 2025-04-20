@@ -38,23 +38,21 @@ export async function DELETE(req: Request) {
   try {
     const { accountId } = await req.json();
 
-    const steamAccount = await prisma.linkedAccounts.findFirst({
-      where: {
-        id: accountId,
-      },
+    const account = await prisma.linkedAccounts.findFirst({
+      where: { id: accountId },
     });
 
-    const steamUsername = steamAccount?.externalPlatformUserName;
-    console.log(steamUsername);
+    if (!account) {
+      return NextResponse.json({ error: "Account not found" }, { status: 404 });
+    }
+
+    const platform = account.platformName;
+    const platformUser = account.externalPlatformUserName;
 
     await prisma.linkedAccounts.delete({
-      where: {
-        id: accountId,
-      },
+      where: { id: accountId },
     });
-    console.log("Account deleted successfully");
-
-    console.log(steamUsername);
+    console.log(`${platform} Account deleted successfully`);
 
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -64,24 +62,30 @@ export async function DELETE(req: Request) {
 
     if (session) {
       const user = await prisma.user.findFirst({
-        where: {
-          name: username,
-        },
+        where: { name: username },
       });
 
       if (user) {
+        let platformPrefix = "";
+        if (platform === "Steam") {
+          platformPrefix = `Steam (PC): ${platformUser}`;
+        } else if (platform === "Xbox") {
+          platformPrefix = `Xbox: ${platformUser}`;
+        }
+
         await prisma.game.deleteMany({
           where: {
             userId: user.id,
-            platform: `Steam (PC): ${steamUsername}`,
+            platform: platformPrefix,
           },
         });
-        console.log("Steam Games Deleted From Account", username);
+
+        console.log(`${platform} games deleted for user`, username);
       }
     }
 
     return NextResponse.json(
-      { message: "Account unlinked successfully" },
+      { message: `${platform} account unlinked successfully` },
       { status: 200 },
     );
   } catch (error) {

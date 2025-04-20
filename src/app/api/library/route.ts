@@ -25,6 +25,7 @@ export async function GET() {
           where: {
             userId: user.id,
           },
+          include: { genres: true },
         });
 
         return NextResponse.json({ game: listOfGames }, { status: 201 });

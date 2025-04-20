@@ -17,7 +17,7 @@ export async function POST(req: Request) {
       },
       body: `
         search "${query}";
-        fields name, cover.image_id, platforms.name;
+        fields name, cover.image_id, platforms.name, genres.name;
         limit 10;
       `,
     });

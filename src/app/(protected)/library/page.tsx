@@ -29,11 +29,39 @@ type Game = {
   Notes: string | null;
   gamePicture: string | null;
   status: string;
+  genres?: { name: string }[];
 };
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const GameList = () => {
+  const allGenres = [
+    "Action",
+    "Adventure",
+    "Arcade",
+    "Board Game",
+    "Card & Board Game",
+    "Fighting",
+    "Hack and slash/Beat 'em up",
+    "Indie",
+    "MOBA",
+    "Music",
+    "Pinball",
+    "Platform",
+    "Point-and-click",
+    "Puzzle",
+    "Quiz/Trivia",
+    "Racing",
+    "Real Time Strategy (RTS)",
+    "Role-playing (RPG)",
+    "Shooter",
+    "Simulator",
+    "Sport",
+    "Strategy",
+    "Tactical",
+    "Turn-based strategy (TBS)",
+    "Visual Novel",
+  ];
   const [searchTerm, setSearchTerm] = useState("");
   // For sorting games
   type sortedOrder = "asc" | "desc" | "status-asc" | "status-desc";
@@ -43,6 +71,8 @@ const GameList = () => {
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [editedStatus, setEditedStatus] = useState("Not Started");
   const [editedNotes, setEditedNotes] = useState("");
+  const [selectedGenre, setSelectedGenre] = useState("All Genres");
+
   const [isSaving, setIsSaving] = useState(false);
 
   React.useEffect(() => {
@@ -59,6 +89,14 @@ const GameList = () => {
 
   const games = data?.game || [];
 
+  const uniqueGenres = Array.from(
+    new Set(
+      games.flatMap((game) =>
+        (game.genres || []).map((g: { name: string }) => g.name),
+      ),
+    ),
+  ).filter((genre) => genre.length > 0);
+
   const statusOrder: Record<string, number> = {
     "Not Started": 0,
     "On Hold": 1,
@@ -73,12 +111,18 @@ const GameList = () => {
   };
 
   const filteredGames = [...games]
-    .filter(
-      (game) =>
+    .filter((game) => {
+      const matchesSearch =
         game.gameName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         game.platform.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        game.gameType.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
+        game.gameType.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesGenre =
+        selectedGenre === "All Genres" ||
+        game.genres?.some((genreObj) => genreObj.name === selectedGenre);
+
+      return matchesSearch && matchesGenre;
+    })
     .sort((a, b) => {
       if (sortOrder === "asc") {
         return a.gameName.localeCompare(b.gameName);
@@ -120,6 +164,18 @@ const GameList = () => {
               <option value="status-asc">Sort by Status (Progression)</option>
               <option value="status-desc">Sort by Status (Completion)</option>
             </select>
+            <select
+              className="border rounded px-3 py-2 text-black"
+              value={selectedGenre}
+              onChange={(e) => setSelectedGenre(e.target.value)}
+            >
+              <option value="All Genres">All Genres</option>
+              {allGenres.map((genre) => (
+                <option key={genre} value={genre}>
+                  {genre}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {filteredGames.map((game) => (
@@ -160,6 +216,7 @@ const GameList = () => {
                         <p className="text-gray-700 text-sm">
                           {game.platform} | {game.gameType}
                         </p>
+
                         <p
                           className={`text-sm italic flex items-center gap-1 ${
                             game.status === "Completed"
@@ -181,6 +238,11 @@ const GameList = () => {
                   </button>
                 </HoverCardTrigger>
                 <HoverCardContent className="w-80">
+                  {game.genres && game.genres.length > 0 && (
+                    <p className="text-sm text-purple-700 italic">
+                      Genres: {game.genres.map((g) => g.name).join(", ")}
+                    </p>
+                  )}
                   <p className="text-gray-600 text-sm mb-2">{game.Notes}</p>
                 </HoverCardContent>
               </HoverCard>

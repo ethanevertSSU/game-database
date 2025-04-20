@@ -20,8 +20,15 @@ export async function POST(req: Request) {
         },
       });
 
-      const { gameName, platform, physOrDig, notes, gamePicture, status } =
-        await req.json();
+      const {
+        gameName,
+        platform,
+        physOrDig,
+        notes,
+        gamePicture,
+        status,
+        genres,
+      } = await req.json();
       if (user) {
         const newGame = await prisma.game.create({
           data: {
@@ -33,6 +40,12 @@ export async function POST(req: Request) {
             status: status,
             user: {
               connect: { id: user.id },
+            },
+            genres: {
+              connectOrCreate: (genres ?? []).map((name: string) => ({
+                where: { name },
+                create: { name },
+              })),
             },
           },
         });
