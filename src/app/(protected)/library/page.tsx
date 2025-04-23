@@ -137,13 +137,6 @@ const GameList = () => {
     Completed: "bg-green-200 text-green-800",
   };
 
-  const statusBorderStyles: Record<string, string> = {
-    "Not Started": "border-gray-300",
-    "On Hold": "border-yellow-400",
-    Playing: "border-blue-500",
-    Completed: "border-green-500",
-  };
-
   return (
     <div className="flex flex-col gap-3 h-screen items-center justify-top bg-purple-400">
       <Header />
