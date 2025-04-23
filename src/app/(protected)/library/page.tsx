@@ -207,7 +207,13 @@ const GameList = () => {
                               : "from-gray-300 to-gray-400 hover:shadow-[0_0_10px_rgba(107,114,128,0.6)]"
                       }`}
                     >
-                      <HoverCardTrigger asChild>
+                      <HoverCardTrigger
+                        asChild
+                        onClick={() => {
+                          setSelectedGame(game);
+                          setEditedNotes(game.Notes || "");
+                        }}
+                      >
                         <button
                           style={{ width: "290px", height: "260px" }}
                           className="bg-white text-left w-full h-full rounded-lg shadow-md overflow-hidden transition-transform"
