@@ -258,6 +258,7 @@ const GameList = () => {
                           setSelectedGameIds(new Set());
                           await mutate();
                         } catch (error) {
+                          console.error(error);
                           toast("Failed to delete some games.");
                         }
                       }}
@@ -285,6 +286,7 @@ const GameList = () => {
                           setSelectedGameIds(new Set());
                           await mutate();
                         } catch (err) {
+                          console.error(err);
                           toast("Failed to update some games.");
                         }
                       }}
@@ -676,6 +678,7 @@ const GameList = () => {
                   setIsRandomOpen(false);
                   await mutate(); // refresh game list
                 } catch (err) {
+                  console.error(err);
                   toast("Failed to update game status.");
                 }
               }}
