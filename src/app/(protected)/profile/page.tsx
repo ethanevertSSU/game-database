@@ -244,11 +244,17 @@ export default function ProfilePage() {
                       </p>
                       <p className="text-purple-600 text-sm">Games</p>
                     </div>
-                    <div className="bg-purple-100 p-4 rounded-b-lg">
+                    <div className="bg-purple-100 p-4 border-b-2 border-purple-300">
                       <p className="text-purple-800 font-bold text-2xl">
                         {data?.numAchievements || 0}
                       </p>
                       <p className="text-purple-600 text-sm">Achievements</p>
+                    </div>
+                    <div className="bg-purple-100 p-4 rounded-b-lg  ">
+                      <p className="text-purple-800 font-bold text-2xl">
+                        {data?.numFriends || 0}
+                      </p>
+                      <p className="text-purple-600 text-sm">Friends</p>
                     </div>
                   </div>
                 </div>
