@@ -20,6 +20,15 @@ export async function GET(
   if (!user)
     return NextResponse.json({ error: "no user found" }, { status: 404 });
 
+  //for friends
+  const friends = await prisma.friends.findMany({
+    where: {
+      userId: user.id,
+    },
+  });
+
+  const numFriends = friends.length;
+
   //for number of games in library
   const games = await prisma.game.findMany({
     where: {
@@ -77,6 +86,7 @@ export async function GET(
   return NextResponse.json(
     {
       user: {
+        id: user.id,
         name: user.name,
         image: user.image,
         memberSince: user.createdAt,
@@ -86,6 +96,7 @@ export async function GET(
       achievements: achievements,
       numGames: numGames,
       numAchievements: achievements.length,
+      numFriends: numFriends,
       ...(lastSteamGamePlayed && { lastSteamGamePlayed }),
     },
     { status: 200 },

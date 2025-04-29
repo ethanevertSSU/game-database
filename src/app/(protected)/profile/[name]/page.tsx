@@ -1,11 +1,12 @@
 "use client";
 
-import React, { use } from "react";
-import useSWR from "swr";
+import React, { use, useEffect } from "react";
+import useSWR, { mutate } from "swr";
 import Header from "@/components/Header";
 import Image from "next/image";
 import cat from "../../../../../public/cat.jpg";
 import { steamIcon } from "../../../../../public/steamIcon";
+import { toast } from "sonner";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -24,13 +25,26 @@ export default function Page({
   const resolvedParams = use(params);
   const { name } = resolvedParams;
   const { data, error, isLoading } = useSWR(`/api/user/${name}`, fetcher);
+  const { data: user, error: userError } = useSWR(`/api/session/`, fetcher);
+  const { data: friends } = useSWR(`/api/manageFriend/${name}/`, fetcher);
+
   if (error) return <div>Error loading data</div>;
+  if (userError) return <div>Error loading data</div>;
+
+  const friendsList = friends?.friendList ?? [];
+
+  const sessionUsername = user?.username;
+  // console.log("session: ", sessionUsername);
+  const username = data?.user?.name;
+  const userId = data?.user?.id;
+  // console.log("user: ", username);
+
+  const isSearchNameSession = sessionUsername === username;
+  const matchingFriend = friendsList.find((friend) => friend.userId === userId);
 
   const gamePicture = `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${data?.lastSteamGamePlayed?.appId}/header.jpg?`;
 
   const userDate = data?.user?.memberSince;
-
-  console.log(userDate);
 
   const date = new Date(userDate);
 
@@ -38,6 +52,27 @@ export default function Page({
   const day = date.getDate();
   const year = date.getFullYear();
   const formattedDate = `${month}/${day}/${year}`;
+
+  const handleFriendAdd = async (accountId: string) => {
+    try {
+      const response = await fetch(`/api/manageFriend/${name}/`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accountId }),
+      });
+
+      if (!response.ok) {
+        toast(`Failed to add friend ${username}`);
+        return;
+      }
+
+      // Revalidate data after deletion
+      await mutate(`/api/user/${name}`);
+      toast(`Successfully added friend: ${username}`);
+    } catch (error) {
+      console.error("Error adding friend:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-purple-400">
@@ -72,9 +107,31 @@ export default function Page({
                         className="object-cover"
                       />
                     </div>
-                    <h2 className="text-2xl font-bold text-purple-900 mb-2">
-                      {data?.user?.name}
-                    </h2>
+                    <div className="flex flex-col items-center">
+                      <h2 className="text-2xl font-bold text-purple-900 mb-2">
+                        {data?.user?.name}
+                      </h2>
+                      {isSearchNameSession ? (
+                        <h1 className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition">
+                          This is your account
+                        </h1>
+                      ) : (
+                        <div>
+                          {!matchingFriend ? (
+                            <button
+                              onClick={() => handleFriendAdd(data?.user?.id)}
+                              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+                            >
+                              Add Friend
+                            </button>
+                          ) : (
+                            <button className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition">
+                              Remove Friend
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
                     <p className="text-gray-600 mb-4">
                       Member since {formattedDate}
                     </p>
@@ -87,11 +144,17 @@ export default function Page({
                         </p>
                         <p className="text-purple-600 text-sm">Games</p>
                       </div>
-                      <div className="bg-purple-100 p-4 rounded-b-lg">
+                      <div className="bg-purple-100 p-4 border-b-2 border-purple-300">
                         <p className="text-purple-800 font-bold text-2xl">
                           {data?.numAchievements || 0}
                         </p>
                         <p className="text-purple-600 text-sm">Achievements</p>
+                      </div>
+                      <div className="bg-purple-100 p-4 rounded-b-lg  ">
+                        <p className="text-purple-800 font-bold text-2xl">
+                          {data?.numFriends || 0}
+                        </p>
+                        <p className="text-purple-600 text-sm">Friends</p>
                       </div>
                     </div>
                   </div>
@@ -107,7 +170,7 @@ export default function Page({
                       {data?.user?.bio}
                     </div>
                     <div className="inline-flex flex-col">
-                      <div className="font-bold">Linked Accounts: </div>
+                      <div className="font-bold">Linked Accounts:</div>
                       {data?.linkedAccounts?.length == 0 ? (
                         <div className="font-bold">NO LINKED ACCOUNTS</div>
                       ) : (

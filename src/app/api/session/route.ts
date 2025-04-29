@@ -1,11 +1,20 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/app/lib/auth"; // your betterAuth instance
+import { auth } from "@/app/lib/auth";
+import { headers } from "next/headers"; // your betterAuth instance
+import { PrismaClient } from "@prisma/client";
 
+const prisma = new PrismaClient();
 export async function GET(request: Request) {
   const session = await auth.api.getSession({ headers: request.headers });
 
   if (!session) {
-    return NextResponse.json(null, { status: 401 });
+    return NextResponse.json(
+      { error: "no session available" },
+      { status: 401 },
+    );
   }
-  return NextResponse.json(session);
+
+  const username = session?.user.name ?? " ";
+
+  return NextResponse.json({ username: username }, { status: 200 });
 }
