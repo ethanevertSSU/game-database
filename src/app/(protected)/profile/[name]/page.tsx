@@ -1,12 +1,12 @@
 "use client";
 
-import React, { use, useEffect } from "react";
+import React, { use, useEffect, useState } from "react";
 import useSWR, { mutate } from "swr";
 import Header from "@/components/Header";
 import Image from "next/image";
 import cat from "../../../../../public/cat.jpg";
 import { steamIcon } from "../../../../../public/steamIcon";
-import { toast } from "sonner";
+import { toast, Toaster } from "sonner";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -31,16 +31,24 @@ export default function Page({
   if (error) return <div>Error loading data</div>;
   if (userError) return <div>Error loading data</div>;
 
-  const friendsList = friends?.friendList ?? [];
+  let friendsList = friends?.friendList ?? [];
 
   const sessionUsername = user?.username;
   // console.log("session: ", sessionUsername);
   const username = data?.user?.name;
   const userId = data?.user?.id;
   // console.log("user: ", username);
+  const [matchingFriend, setMatchingFriend] = useState<any>(null);
 
+  useEffect(() => {
+    if (friends?.friendList && userId) {
+      const match = friends.friendList.find(
+        (friend) => friend.followingId === userId,
+      );
+      setMatchingFriend(match); // <-- set initial match
+    }
+  }, [friends, userId]);
   const isSearchNameSession = sessionUsername === username;
-  const matchingFriend = friendsList.find((friend) => friend.userId === userId);
 
   const gamePicture = `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${data?.lastSteamGamePlayed?.appId}/header.jpg?`;
 
@@ -53,24 +61,47 @@ export default function Page({
   const year = date.getFullYear();
   const formattedDate = `${month}/${day}/${year}`;
 
-  const handleFriendAdd = async (accountId: string) => {
+  const handleFriendAdd = async () => {
     try {
-      const response = await fetch(`/api/manageFriend/${name}/`, {
-        method: "GET",
+      const response = await fetch(`/api/manageFriend/${name}`, {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accountId }),
+        body: JSON.stringify({ name }),
       });
 
       if (!response.ok) {
-        toast(`Failed to add friend ${username}`);
+        toast.error(`Failed to add friend ${username}`);
         return;
       }
 
-      // Revalidate data after deletion
+      await mutate(`/api/manageFriend/${name}`);
       await mutate(`/api/user/${name}`);
-      toast(`Successfully added friend: ${username}`);
+      toast.success(`Successfully added friend: ${username}`);
     } catch (error) {
       console.error("Error adding friend:", error);
+      toast.error(`Error adding friend`);
+    }
+  };
+
+  const handleFriendRemove = async () => {
+    try {
+      const response = await fetch(`/api/manageFriend/${name}/`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+
+      if (!response.ok) {
+        toast.error(`Failed to remove friend ${username}`);
+        return;
+      }
+
+      await mutate(`/api/manageFriend/${name}`);
+      await mutate(`/api/user/${name}`);
+      toast.success(`Successfully removed friend: ${username}`);
+    } catch (error) {
+      console.error("Error removing friend:", error);
+      toast.error(`Error removing friend`);
     }
   };
 
@@ -119,13 +150,16 @@ export default function Page({
                         <div>
                           {!matchingFriend ? (
                             <button
-                              onClick={() => handleFriendAdd(data?.user?.id)}
+                              onClick={() => handleFriendAdd()}
                               className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
                             >
                               Add Friend
                             </button>
                           ) : (
-                            <button className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition">
+                            <button
+                              onClick={() => handleFriendRemove()}
+                              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
+                            >
                               Remove Friend
                             </button>
                           )}
@@ -150,11 +184,22 @@ export default function Page({
                         </p>
                         <p className="text-purple-600 text-sm">Achievements</p>
                       </div>
-                      <div className="bg-purple-100 p-4 rounded-b-lg  ">
-                        <p className="text-purple-800 font-bold text-2xl">
-                          {data?.numFriends || 0}
-                        </p>
-                        <p className="text-purple-600 text-sm">Friends</p>
+                      <div className="flex flex-row justify-around items-stretch bg-purple-100 p-4 border-b-2 border-purple-300 text-center">
+                        <div className="flex flex-col justify-center bg-purple-100 p-4 rounded-b-lg text-center flex-1">
+                          <p className="text-purple-800 font-bold text-2xl">
+                            {data?.numFollowing || 0}
+                          </p>
+                          <p className="text-purple-600 text-sm">Following</p>
+                        </div>
+
+                        <div className="w-px bg-purple-300" />
+
+                        <div className="flex flex-col justify-center bg-purple-100 p-4 rounded-b-lg text-center flex-1">
+                          <p className="text-purple-800 font-bold text-2xl">
+                            {data?.numfollowers || 0}
+                          </p>
+                          <p className="text-purple-600 text-sm">Followers</p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -319,6 +364,7 @@ export default function Page({
           )}
         </div>
       )}
+      <Toaster />
     </div>
   );
 }

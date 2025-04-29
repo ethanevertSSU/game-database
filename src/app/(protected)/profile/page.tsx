@@ -250,11 +250,22 @@ export default function ProfilePage() {
                       </p>
                       <p className="text-purple-600 text-sm">Achievements</p>
                     </div>
-                    <div className="bg-purple-100 p-4 rounded-b-lg  ">
-                      <p className="text-purple-800 font-bold text-2xl">
-                        {data?.numFriends || 0}
-                      </p>
-                      <p className="text-purple-600 text-sm">Friends</p>
+                    <div className="flex flex-row justify-around items-stretch bg-purple-100 p-4 border-b-2 border-purple-300 text-center">
+                      <div className="flex flex-col justify-center bg-purple-100 p-4 rounded-b-lg text-center flex-1">
+                        <p className="text-purple-800 font-bold text-2xl">
+                          {data?.numFollowing || 0}
+                        </p>
+                        <p className="text-purple-600 text-sm">Following</p>
+                      </div>
+
+                      <div className="w-px bg-purple-300" />
+
+                      <div className="flex flex-col justify-center bg-purple-100 p-4 rounded-b-lg text-center flex-1">
+                        <p className="text-purple-800 font-bold text-2xl">
+                          {data?.numfollowers || 0}
+                        </p>
+                        <p className="text-purple-600 text-sm">Followers</p>
+                      </div>
                     </div>
                   </div>
                 </div>

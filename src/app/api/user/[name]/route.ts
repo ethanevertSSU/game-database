@@ -8,7 +8,6 @@ export async function GET(
   { params }: { params: Promise<{ name: string }> },
 ) {
   const { name } = await params;
-  console.log(req);
 
   //user id
   const user = await prisma.user.findFirst({
@@ -21,13 +20,20 @@ export async function GET(
     return NextResponse.json({ error: "no user found" }, { status: 404 });
 
   //for friends
-  const friends = await prisma.friends.findMany({
+  const following = await prisma.friends.findMany({
     where: {
       userId: user.id,
     },
   });
 
-  const numFriends = friends.length;
+  const followers = await prisma.friends.findMany({
+    where: {
+      followingId: user.id,
+    },
+  });
+
+  const numFollowing = following.length;
+  const numfollowers = followers.length;
 
   //for number of games in library
   const games = await prisma.game.findMany({
@@ -96,7 +102,8 @@ export async function GET(
       achievements: achievements,
       numGames: numGames,
       numAchievements: achievements.length,
-      numFriends: numFriends,
+      numFollowing: numFollowing,
+      numfollowers: numfollowers,
       ...(lastSteamGamePlayed && { lastSteamGamePlayed }),
     },
     { status: 200 },

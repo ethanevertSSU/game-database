@@ -33,24 +33,31 @@ export async function GET() {
           },
         });
 
-        const friends = await prisma.friends.findMany({
+        const following = await prisma.friends.findMany({
           where: {
             userId: user.id,
           },
         });
 
+        const followers = await prisma.friends.findMany({
+          where: {
+            followingId: user.id,
+          },
+        });
+
         const numGames = games.length;
         const numAchievements = achievements.length;
-        const numFriends = friends.length;
+        const numFollowing = following.length;
+        const numfollowers = followers.length;
 
         return NextResponse.json(
           {
             numGames: numGames,
             numAchievements: numAchievements,
-            numFriends: numFriends,
+            numFollowing: numFollowing,
+            numfollowers: numfollowers,
             games: games,
             achievements: achievements,
-            friends: friends,
             user: user,
           },
           { status: 201 },
