@@ -20,8 +20,13 @@ export async function POST(req: Request) {
         },
       });
 
+      const body = await req.json();
+      console.log("📦 Received body:", body);
+
       const { gameName, platform, physOrDig, notes, gamePicture, status } =
-        await req.json();
+        body;
+      console.log("✍️ notes field received:", notes);
+
       if (user) {
         const newGame = await prisma.game.create({
           data: {

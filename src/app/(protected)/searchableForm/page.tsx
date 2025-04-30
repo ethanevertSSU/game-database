@@ -23,11 +23,16 @@ interface Cover {
   image_id: string;
 }
 
+interface Genre {
+  id: number;
+  name: string;
+}
+
 interface IGDBGame {
   id: number;
   name: string;
   platforms?: Platform[];
-  summary?: string;
+  genres?: Genre[]; // ← not string[]
   cover?: Cover;
 }
 
@@ -35,7 +40,8 @@ type Game = {
   id: string;
   gameName: string;
   platforms: string[];
-  Notes: string | null;
+  genres: string[];
+  notes: string | null;
   gamePicture: string;
 };
 
@@ -77,14 +83,16 @@ const GameList = () => {
         const platforms = game.platforms?.map((p: Platform) => p.name) || [
           "Unknown",
         ];
+        const genres = game.genres?.map((g: { name: string }) => g.name) || [];
         return {
           id: game.id.toString(),
           gameName: game.name,
           platforms,
-          Notes: game.summary || null,
+          notes: "",
           gamePicture: game.cover
             ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.image_id}.jpg`
             : "",
+          genres,
         };
       });
 
@@ -107,6 +115,14 @@ const GameList = () => {
     const platform = platformSelection[game.id] || game.platforms[0];
     const gameType = typeSelection[game.id] || "Digital";
 
+    const genreTags =
+      game.genres.length > 0
+        ? game.genres.map((g) => `#${g.replace(/\s+/g, "")}`).join(" ")
+        : "No genres available";
+
+    console.log("Working Ok:");
+    console.log(genreTags);
+
     try {
       const response = await fetch("/api/form", {
         method: "POST",
@@ -115,8 +131,9 @@ const GameList = () => {
           gameName: game.gameName,
           platform,
           physOrDig: gameType,
-          Notes: game.Notes,
+          notes: genreTags,
           gamePicture: game.gamePicture,
+          status: "Not Started",
         }),
       });
 
@@ -186,7 +203,15 @@ const GameList = () => {
                       >
                         {game.gameName}
                       </p>
-                      <p className="text-sm text-gray-600 mb-1">{game.Notes}</p>
+                      {game.genres.length > 0 && (
+                        <p className="text-sm text-gray-500 italic min-h-[2.5rem] leading-snug">
+                          {game.genres.length > 0 ? (
+                            `Genre: ${game.genres.join(", ")}`
+                          ) : (
+                            <>&nbsp;</>
+                          )}
+                        </p>
+                      )}
                       <label className="text-sm font-semibold">Platform:</label>
                       <select
                         className="border rounded px-2 py-1"
