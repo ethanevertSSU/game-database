@@ -69,6 +69,16 @@ const GameList = () => {
 
   const games = data?.game || [];
 
+  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+
+  const allGenres = Array.from(
+    new Set(
+      games.flatMap(
+        (game) => game.Notes?.match(/#\w+/g)?.map((tag) => tag.slice(1)) || [],
+      ),
+    ),
+  ).sort();
+
   const statusOrder: Record<string, number> = {
     "Not Started": 0,
     "On Hold": 1,
@@ -83,12 +93,21 @@ const GameList = () => {
   };
 
   const filteredGames = [...games]
-    .filter(
-      (game) =>
+    .filter((game) => {
+      const matchesSearch =
         game.gameName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         game.platform.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        game.gameType.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
+        game.gameType.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const gameTags =
+        game.Notes?.match(/#\w+/g)?.map((tag) => tag.slice(1)) || [];
+
+      const matchesGenres =
+        selectedGenres.length === 0 ||
+        selectedGenres.every((g) => gameTags.includes(g));
+
+      return matchesSearch && matchesGenres;
+    })
     .sort((a, b) => {
       if (sortOrder === "asc") {
         return a.gameName.localeCompare(b.gameName);
@@ -129,6 +148,7 @@ const GameList = () => {
   };
 
   const [isChartOpen, setIsChartOpen] = useState(false);
+  const [isGenreDialogOpen, setIsGenreDialogOpen] = useState(false);
 
   const statusPillStyles: Record<string, string> = {
     "Not Started": "bg-gray-200 text-gray-700",
@@ -166,6 +186,13 @@ const GameList = () => {
                 <option value="status-asc">Sort by Status (Progression)</option>
                 <option value="status-desc">Sort by Status (Completion)</option>
               </select>
+              <button
+                onClick={() => setIsGenreDialogOpen(true)}
+                className="bg-white border rounded px-3 py-2 hover:bg-purple-100 font-semibold"
+              >
+                🎯 Genres
+              </button>
+
               <button
                 onClick={() => setIsChartOpen(true)}
                 className="bg-white border rounded px-3 py-2 hover:bg-purple-100 font-semibold"
@@ -270,6 +297,48 @@ const GameList = () => {
           </div>
         </div>
       )}
+      <Dialog open={isGenreDialogOpen} onOpenChange={setIsGenreDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Filter by Genre</DialogTitle>
+          </DialogHeader>
+
+          <div className="flex flex-wrap gap-2 mt-2">
+            {allGenres.map((genre) => (
+              <label
+                key={genre}
+                className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded text-sm cursor-pointer hover:bg-purple-100 transition"
+              >
+                <input
+                  type="checkbox"
+                  className="accent-purple-600"
+                  checked={selectedGenres.includes(genre)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedGenres((prev) => [...prev, genre]);
+                    } else {
+                      setSelectedGenres((prev) =>
+                        prev.filter((g) => g !== genre),
+                      );
+                    }
+                  }}
+                />
+                <span>#{genre}</span>
+              </label>
+            ))}
+          </div>
+
+          <DialogFooter className="mt-4 flex justify-end">
+            <button
+              onClick={() => setIsGenreDialogOpen(false)}
+              className="bg-purple-600 hover:bg-purple-800 text-white px-4 py-2 rounded"
+            >
+              Close
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog
         open={!!selectedGame}
         onOpenChange={(open) => !open && setSelectedGame(null)}
