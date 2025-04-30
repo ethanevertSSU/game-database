@@ -31,8 +31,9 @@ export async function GET(
     },
   });
 
-  if (!user)
-    return NextResponse.json({ error: "no user found" }, { status: 404 });
+  const allUsers = await prisma.user.findMany();
+
+  if (!user) return NextResponse.json({ allUsers: allUsers }, { status: 404 });
 
   //for friends
   const followingList = await prisma.friends.findMany({
