@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { getLastedPlayedSteamGame } from "@/app/api/steam/steam";
+import { auth } from "@/app/lib/auth";
+import { headers } from "next/headers";
 
 const prisma = new PrismaClient();
 export async function GET(
@@ -8,6 +10,18 @@ export async function GET(
   { params }: { params: Promise<{ name: string }> },
 ) {
   const { name } = await params;
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  const username = session?.user.name ?? " ";
+
+  const sessionUser = await prisma.user.findFirst({
+    where: {
+      name: username,
+    },
+  });
 
   //user id
   const user = await prisma.user.findFirst({
@@ -20,6 +34,12 @@ export async function GET(
     return NextResponse.json({ error: "no user found" }, { status: 404 });
 
   //for friends
+  const followingList = await prisma.friends.findMany({
+    where: {
+      userId: sessionUser?.id,
+    },
+  });
+
   const following = await prisma.friends.findMany({
     where: {
       userId: user.id,
@@ -104,6 +124,7 @@ export async function GET(
       numAchievements: achievements.length,
       numFollowing: numFollowing,
       numfollowers: numfollowers,
+      followingList: followingList,
       ...(lastSteamGamePlayed && { lastSteamGamePlayed }),
     },
     { status: 200 },

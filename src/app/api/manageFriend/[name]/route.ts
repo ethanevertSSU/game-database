@@ -179,12 +179,12 @@ export async function DELETE(
     },
   });
 
-  if (!isUserFollowed) {
-    return NextResponse.json(
-      { error: "Not following this user" },
-      { status: 400 },
-    );
-  }
+  // if (!isUserFollowed) {
+  //   return NextResponse.json(
+  //     { error: "Not following this user" },
+  //     { status: 400 },
+  //   );
+  // }
 
   await prisma.friends.deleteMany({
     where: {
@@ -200,7 +200,7 @@ export async function DELETE(
   });
 
   return NextResponse.json(
-    { message: "Successfully unfollowed user", updatedFriendList },
+    { message: "Successfully unfollowed user" },
     { status: 200 },
   );
 }

@@ -26,28 +26,19 @@ export default function Page({
   const { name } = resolvedParams;
   const { data, error, isLoading } = useSWR(`/api/user/${name}`, fetcher);
   const { data: user, error: userError } = useSWR(`/api/session/`, fetcher);
-  const { data: friends } = useSWR(`/api/manageFriend/${name}/`, fetcher);
 
   if (error) return <div>Error loading data</div>;
   if (userError) return <div>Error loading data</div>;
 
-  let friendsList = friends?.friendList ?? [];
+  const friendsList = data?.followingList ?? [];
+  console.log(friendsList);
 
   const sessionUsername = user?.username;
   // console.log("session: ", sessionUsername);
   const username = data?.user?.name;
   const userId = data?.user?.id;
   // console.log("user: ", username);
-  const [matchingFriend, setMatchingFriend] = useState<any>(null);
 
-  useEffect(() => {
-    if (friends?.friendList && userId) {
-      const match = friends.friendList.find(
-        (friend) => friend.followingId === userId,
-      );
-      setMatchingFriend(match); // <-- set initial match
-    }
-  }, [friends, userId]);
   const isSearchNameSession = sessionUsername === username;
 
   const gamePicture = `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${data?.lastSteamGamePlayed?.appId}/header.jpg?`;
@@ -74,7 +65,6 @@ export default function Page({
         return;
       }
 
-      await mutate(`/api/manageFriend/${name}`);
       await mutate(`/api/user/${name}`);
       toast.success(`Successfully added friend: ${username}`);
     } catch (error) {
@@ -84,6 +74,7 @@ export default function Page({
   };
 
   const handleFriendRemove = async () => {
+    ``;
     try {
       const response = await fetch(`/api/manageFriend/${name}/`, {
         method: "DELETE",
@@ -96,7 +87,6 @@ export default function Page({
         return;
       }
 
-      await mutate(`/api/manageFriend/${name}`);
       await mutate(`/api/user/${name}`);
       toast.success(`Successfully removed friend: ${username}`);
     } catch (error) {
@@ -148,7 +138,9 @@ export default function Page({
                         </h1>
                       ) : (
                         <div>
-                          {!matchingFriend ? (
+                          {!friendsList.find(
+                            (friend) => friend.followingId === userId,
+                          ) ? (
                             <button
                               onClick={() => handleFriendAdd()}
                               className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
