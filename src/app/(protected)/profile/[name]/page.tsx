@@ -7,6 +7,13 @@ import Image from "next/image";
 import cat from "../../../../../public/cat.jpg";
 import { steamIcon } from "../../../../../public/steamIcon";
 import { toast, Toaster } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -41,6 +48,7 @@ export default function Page({
   const { data: user, error: userError } = useSWR(`/api/session/`, fetcher);
 
   const [isStateLoading, setIsStateLoading] = useState(false);
+  const [isGameDialogOpen, setIsGameDialogOpen] = useState(false);
 
   if (error) return <div>Error loading data</div>;
   if (userError) return <div>Error loading user data</div>;
@@ -124,6 +132,39 @@ export default function Page({
       ) : (
         <div className="flex flex-col min-h-screen">
           <Header />
+          <Dialog open={isGameDialogOpen} onOpenChange={setIsGameDialogOpen}>
+            <DialogContent className="sm:max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>{username}'s Game Library</DialogTitle>
+              </DialogHeader>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto">
+                {data?.games?.map((game: any) => (
+                  <div
+                    key={game.id}
+                    className="bg-white border rounded p-2 shadow-md text-sm"
+                  >
+                    <div className="font-semibold text-purple-800 truncate">
+                      {game.gameName}
+                    </div>
+                    <div className="text-gray-600 text-xs">
+                      {game.platform} — {game.gameType}
+                    </div>
+                    <div className="text-gray-500 text-xs italic truncate">
+                      {game.Notes}
+                    </div>
+                  </div>
+                )) || <div>No games found.</div>}
+              </div>
+              <DialogFooter className="mt-4 flex justify-end">
+                <button
+                  onClick={() => setIsGameDialogOpen(false)}
+                  className="bg-purple-600 hover:bg-purple-800 text-white px-4 py-2 rounded"
+                >
+                  Close
+                </button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
           {!data.user ? (
             <div className="flex flex-col justify-start w-full ">
               <div className="pt-3 text-3xl text-center">
@@ -234,7 +275,10 @@ export default function Page({
 
                     {/* Replaced grid layout with vertical tabs */}
                     <div className="flex flex-col w-full max-w-xs text-center">
-                      <div className="bg-purple-100 p-4 rounded-t-lg border-b-2 border-purple-300  ">
+                      <div
+                        className="bg-purple-100 p-4 rounded-t-lg border-b-2 border-purple-300 hover:bg-purple-200 cursor-pointer"
+                        onClick={() => setIsGameDialogOpen(true)}
+                      >
                         <p className="text-purple-800 font-bold text-2xl">
                           {data?.numGames || 0}
                         </p>
