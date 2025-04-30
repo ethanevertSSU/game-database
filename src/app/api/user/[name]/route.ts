@@ -9,6 +9,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ name: string }> },
 ) {
+  console.log(req);
   const { name } = await params;
 
   const session = await auth.api.getSession({

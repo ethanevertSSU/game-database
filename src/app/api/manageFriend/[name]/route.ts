@@ -9,6 +9,7 @@ export async function GET(
   req: Request,
   { params }: { params: Promise<{ name: string }> },
 ) {
+  console.log(req);
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -67,6 +68,8 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ name: string }> },
 ) {
+  console.log(req);
+
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -118,7 +121,7 @@ export async function POST(
     );
   }
 
-  const followUser = await prisma.friends.create({
+  await prisma.friends.create({
     data: {
       userId: sessionUser.id,
       followingId: followingUser.id,
@@ -139,6 +142,8 @@ export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ name: string }> },
 ) {
+  console.log(req);
+
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -172,30 +177,10 @@ export async function DELETE(
     );
   }
 
-  const isUserFollowed = await prisma.friends.findFirst({
-    where: {
-      userId: sessionUser.id,
-      followingId: followingUser.id,
-    },
-  });
-
-  // if (!isUserFollowed) {
-  //   return NextResponse.json(
-  //     { error: "Not following this user" },
-  //     { status: 400 },
-  //   );
-  // }
-
   await prisma.friends.deleteMany({
     where: {
       userId: sessionUser.id,
       followingId: followingUser.id,
-    },
-  });
-
-  const updatedFriendList = await prisma.friends.findMany({
-    where: {
-      userId: sessionUser.id,
     },
   });
 

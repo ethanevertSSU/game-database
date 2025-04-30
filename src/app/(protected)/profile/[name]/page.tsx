@@ -1,6 +1,6 @@
 "use client";
 
-import React, { use, useEffect, useState } from "react";
+import React, { use, useState } from "react";
 import useSWR, { mutate } from "swr";
 import Header from "@/components/Header";
 import Image from "next/image";
@@ -17,6 +17,12 @@ type link = {
   platformName: string;
 };
 
+type friend = {
+  id: String;
+  userId: String;
+  followingId: String;
+};
+
 export default function Page({
   params,
 }: {
@@ -27,12 +33,13 @@ export default function Page({
   const { data, error, isLoading } = useSWR(`/api/user/${name}`, fetcher);
   const { data: user, error: userError } = useSWR(`/api/session/`, fetcher);
 
+  const [isStateLoading, setIsStateLoading] = useState(false);
+
   if (error) return <div>Error loading data</div>;
   if (userError) return <div>Error loading data</div>;
 
   const friendsList = data?.followingList ?? [];
-  // console.log(friendsList);
-  const [isStateLoading, setIsStateLoading] = useState(false);
+  console.log(friendsList);
 
   const sessionUsername = user?.username;
   // console.log("session: ", sessionUsername);
@@ -54,8 +61,8 @@ export default function Page({
   const formattedDate = `${month}/${day}/${year}`;
 
   const handleFriendAdd = async () => {
+    setIsStateLoading(true);
     try {
-      setIsStateLoading(true);
       const response = await fetch(`/api/manageFriend/${name}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -68,8 +75,8 @@ export default function Page({
       }
 
       await mutate(`/api/user/${name}`);
-      setIsStateLoading(false);
       toast.success(`Successfully added friend: ${username}`);
+      setIsStateLoading(false);
     } catch (error) {
       console.error("Error adding friend:", error);
       toast.error(`Error adding friend`);
@@ -77,9 +84,8 @@ export default function Page({
   };
 
   const handleFriendRemove = async () => {
-    ``;
+    setIsStateLoading(true);
     try {
-      setIsStateLoading(true);
       const response = await fetch(`/api/manageFriend/${name}/`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -92,8 +98,8 @@ export default function Page({
       }
 
       await mutate(`/api/user/${name}`);
-      setIsStateLoading(false);
       toast.success(`Successfully removed friend: ${username}`);
+      setIsStateLoading(false);
     } catch (error) {
       console.error("Error removing friend:", error);
       toast.error(`Error removing friend`);
@@ -144,37 +150,29 @@ export default function Page({
                       ) : (
                         <div>
                           {!friendsList.find(
-                            (friend) => friend.followingId === userId,
+                            (friend: friend) => friend.followingId === userId,
                           ) ? (
-                            <div>
+                            <button
+                              onClick={() => handleFriendAdd()}
+                              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+                            >
                               {isStateLoading ? (
-                                <div className="bg-amber-600 text-white px-4 py-2 rounded-md hover:bg-amber-700 transition">
-                                  Adding Friend...
-                                </div>
+                                <div>Adding Friend...</div>
                               ) : (
-                                <button
-                                  onClick={() => handleFriendAdd()}
-                                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
-                                >
-                                  Add Friend
-                                </button>
+                                <div>Add Friend</div>
                               )}
-                            </div>
+                            </button>
                           ) : (
-                            <div>
+                            <button
+                              onClick={() => handleFriendRemove()}
+                              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
+                            >
                               {isStateLoading ? (
-                                <div className="bg-amber-600 text-white px-4 py-2 rounded-md hover:bg-amber-700 transition">
-                                  Removing Friend...
-                                </div>
+                                <div>Removing Friend...</div>
                               ) : (
-                                <button
-                                  onClick={() => handleFriendRemove()}
-                                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
-                                >
-                                  Remove Friend
-                                </button>
+                                <div>Remove Friend</div>
                               )}
-                            </div>
+                            </button>
                           )}
                         </div>
                       )}
