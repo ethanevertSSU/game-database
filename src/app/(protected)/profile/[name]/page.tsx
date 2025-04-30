@@ -23,6 +23,13 @@ type friend = {
   followingId: string;
 };
 
+type user = {
+  id: string;
+  name: string;
+  image: string;
+  bio: string;
+};
+
 export default function Page({
   params,
 }: {
@@ -36,16 +43,18 @@ export default function Page({
   const [isStateLoading, setIsStateLoading] = useState(false);
 
   if (error) return <div>Error loading data</div>;
-  if (userError) return <div>Error loading data</div>;
+  if (userError) return <div>Error loading user data</div>;
 
   const friendsList = data?.followingList ?? [];
   console.log(friendsList);
 
+  const allUsers = data?.allUsers;
   const sessionUsername = user?.username;
   // console.log("session: ", sessionUsername);
   const username = data?.user?.name;
   const userId = data?.user?.id;
   // console.log("user: ", username);
+  console.log(allUsers);
 
   const isSearchNameSession = sessionUsername === username;
 
@@ -116,15 +125,57 @@ export default function Page({
         <div className="flex flex-col min-h-screen">
           <Header />
           {!data.user ? (
-            <div className="flex flex-1 items-center justify-center">
-              <div className=" text-3xl text-center">
+            <div className="flex flex-col justify-start w-full ">
+              <div className="pt-3 text-3xl text-center">
                 User <p className="font-bold inline">&ldquo;{name}&ldquo;</p>{" "}
                 not found, please search again.
                 <div className="pt-3">
                   <p className="font-bold inline">NOTE</p>: Usernames Are Case
                   Sensitive.
                 </div>
+                <br />
+                <div className="font-bold">
+                  Here is a list of other Profiles To Checkout!
+                </div>
               </div>
+              {data.allUsers ? (
+                <div className="flex flex-col h-[1000px] items-center gap-2 p-4 overflow-y-auto scrollbar-hide">
+                  {data.allUsers.map((user: user) => (
+                    <div
+                      key={user.id}
+                      className="flex bg-white items-center w-full gap-4 p-2 border border-gray-200 rounded-md shadow-border"
+                    >
+                      <div className="relative w-28 h-28 rounded-full overflow-hidden border-2 border-purple-600">
+                        <Image
+                          src={user.image || cat}
+                          alt={user.name || "Username"}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <a href={`/profile/${user.name}`}>
+                          <h2 className="text-xl   font-semibold">
+                            {user.name}
+                          </h2>
+                        </a>
+                        <p className="text-sm text-gray-600 truncate max-w-xs">
+                          {user.bio}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className=" text-3xl text-center">
+                  User <p className="font-bold inline">&ldquo;{name}&ldquo;</p>{" "}
+                  not found, please search again.
+                  <div className="pt-3">
+                    <p className="font-bold inline">NOTE</p>: Usernames Are Case
+                    Sensitive.
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="container mx-auto px-4 py-8">
