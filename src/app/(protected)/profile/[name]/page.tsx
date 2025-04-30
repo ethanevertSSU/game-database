@@ -31,7 +31,8 @@ export default function Page({
   if (userError) return <div>Error loading data</div>;
 
   const friendsList = data?.followingList ?? [];
-  console.log(friendsList);
+  // console.log(friendsList);
+  const [isStateLoading, setIsStateLoading] = useState(false);
 
   const sessionUsername = user?.username;
   // console.log("session: ", sessionUsername);
@@ -54,6 +55,7 @@ export default function Page({
 
   const handleFriendAdd = async () => {
     try {
+      setIsStateLoading(true);
       const response = await fetch(`/api/manageFriend/${name}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -66,6 +68,7 @@ export default function Page({
       }
 
       await mutate(`/api/user/${name}`);
+      setIsStateLoading(false);
       toast.success(`Successfully added friend: ${username}`);
     } catch (error) {
       console.error("Error adding friend:", error);
@@ -76,6 +79,7 @@ export default function Page({
   const handleFriendRemove = async () => {
     ``;
     try {
+      setIsStateLoading(true);
       const response = await fetch(`/api/manageFriend/${name}/`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -88,6 +92,7 @@ export default function Page({
       }
 
       await mutate(`/api/user/${name}`);
+      setIsStateLoading(false);
       toast.success(`Successfully removed friend: ${username}`);
     } catch (error) {
       console.error("Error removing friend:", error);
@@ -141,19 +146,35 @@ export default function Page({
                           {!friendsList.find(
                             (friend) => friend.followingId === userId,
                           ) ? (
-                            <button
-                              onClick={() => handleFriendAdd()}
-                              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
-                            >
-                              Add Friend
-                            </button>
+                            <div>
+                              {isStateLoading ? (
+                                <div className="bg-amber-600 text-white px-4 py-2 rounded-md hover:bg-amber-700 transition">
+                                  Adding Friend...
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => handleFriendAdd()}
+                                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+                                >
+                                  Add Friend
+                                </button>
+                              )}
+                            </div>
                           ) : (
-                            <button
-                              onClick={() => handleFriendRemove()}
-                              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
-                            >
-                              Remove Friend
-                            </button>
+                            <div>
+                              {isStateLoading ? (
+                                <div className="bg-amber-600 text-white px-4 py-2 rounded-md hover:bg-amber-700 transition">
+                                  Removing Friend...
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => handleFriendRemove()}
+                                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
+                                >
+                                  Remove Friend
+                                </button>
+                              )}
+                            </div>
                           )}
                         </div>
                       )}
