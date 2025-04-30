@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/app/lib/auth";
-import { headers } from "next/headers"; // your betterAuth instance
-import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
 export async function GET(request: Request) {
   const session = await auth.api.getSession({ headers: request.headers });
 

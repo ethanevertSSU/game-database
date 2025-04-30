@@ -18,9 +18,9 @@ type link = {
 };
 
 type friend = {
-  id: String;
-  userId: String;
-  followingId: String;
+  id: string;
+  userId: string;
+  followingId: string;
 };
 
 export default function Page({
