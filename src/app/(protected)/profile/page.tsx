@@ -192,9 +192,13 @@ export default function ProfilePage() {
     "/api/library",
     fetcher,
   );
+  git;
 
   // pick up to five games by status priority
   const getTopGames = (): games[] => {
+    //attempt to fix vercel issue
+    const allGames = libraryData?.game ?? [];
+
     if (!libraryData?.game?.length) return [];
 
     const playing = libraryData.game.filter((g) => g.status === "Playing");
