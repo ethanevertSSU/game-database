@@ -192,7 +192,6 @@ export default function ProfilePage() {
     "/api/library",
     fetcher,
   );
-  git;
 
   // pick up to five games by status priority
   const getTopGames = (): games[] => {
