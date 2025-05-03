@@ -198,14 +198,12 @@ export default function ProfilePage() {
     //attempt to fix vercel issue
     const allGames = libraryData?.game ?? [];
 
-    if (!libraryData?.game?.length) return [];
+    if (allGames.length === 0) return [];
 
-    const playing = libraryData.game.filter((g) => g.status === "Playing");
-    const completed = libraryData.game.filter((g) => g.status === "Completed");
-    const onHold = libraryData.game.filter((g) => g.status === "On Hold");
-    const notStarted = libraryData.game.filter(
-      (g) => g.status === "Not Started",
-    );
+    const playing = allGames.filter((g) => g.status === "Playing");
+    const completed = allGames.filter((g) => g.status === "Completed");
+    const onHold = allGames.filter((g) => g.status === "On Hold");
+    const notStarted = allGames.filter((g) => g.status === "Not Started");
 
     return [...playing, ...completed, ...onHold, ...notStarted].slice(0, 5);
   };
@@ -428,7 +426,13 @@ export default function ProfilePage() {
                                       className="border rounded px-2 py-1 text-black"
                                       value={gameSort}
                                       onChange={(e) =>
-                                        setGameSort(e.target.value as any)
+                                        setGameSort(
+                                          e.target.value as
+                                            | "alpha"
+                                            | "alphaDesc"
+                                            | "recent"
+                                            | "oldest",
+                                        )
                                       }
                                     >
                                       <option value="alpha">A → Z</option>
