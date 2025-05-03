@@ -3,7 +3,7 @@ import Image from "next/image";
 import Header from "@/components/Header";
 import cat from "../../../../public/cat.jpg";
 import useSWR, { mutate } from "swr";
-import React from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { steamIcon } from "../../../../public/steamIcon";
 import { toast } from "sonner";
@@ -44,6 +44,29 @@ type games = {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function ProfilePage() {
+  const [localProfileImage, setLocalProfileImage] = useState<string | null>(
+    null,
+  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("profile_image");
+    if (saved) setLocalProfileImage(saved);
+  }, []);
+
+  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const dataUrl = reader.result as string;
+      setLocalProfileImage(dataUrl);
+      localStorage.setItem("profile_image", dataUrl);
+    };
+    reader.readAsDataURL(file);
+  };
+  //testing
+
   const { data, isLoading } = useSWR("/api/profile", fetcher);
 
   const { data: returnURL } = useSWR<returnURL>("api/url", fetcher);
@@ -158,55 +181,33 @@ export default function ProfilePage() {
   const [editedBio, setEditedBio] = React.useState(data?.user?.bio || user.bio);
   const [isSavingBio, setIsSavingBio] = React.useState(false);
 
-  // Placeholder top games data
-  const topGames = [
-    {
-      id: "1",
-      title: "Elden Ring",
-      coverUrl: "/placeholder/120/160",
-      playtime: 237,
-      lastPlayed: "2024-02-28",
-      platform: "PC",
-      rating: 5,
-    },
+  // sorting for "Add Achievements" dialog
+  const [gameSort, setGameSort] = useState<
+    "alpha" | "alphaDesc" | "recent" | "oldest"
+  >("alpha");
 
-    {
-      id: "2",
-      title: "The Witcher 3: Wild Hunt",
-      coverUrl: "/placeholder/120/160",
-      playtime: 189,
-      lastPlayed: "2024-01-15",
-      platform: "PlayStation 5",
-      rating: 5,
-    },
-    {
-      id: "3",
-      title: "Baldur's Gate 3",
-      coverUrl: "/placeholder/120/160",
-      playtime: 156,
-      lastPlayed: "2024-02-10",
-      platform: "PC",
-      rating: 5,
-    },
-    {
-      id: "4",
-      title: "Cyberpunk 2077",
-      coverUrl: "/placeholder/120/160",
-      playtime: 92,
-      lastPlayed: "2023-12-20",
-      platform: "PC",
-      rating: 4,
-    },
-    {
-      id: "5",
-      title: "Red Dead Redemption 2",
-      coverUrl: "/placeholder/120/160",
-      playtime: 88,
-      lastPlayed: "2023-11-05",
-      platform: "Xbox Series X",
-      rating: 5,
-    },
-  ];
+  // ─── Top‑Games data pulled from library ────────────────────────────
+  // GET /api/library returns { game: games[] }
+  const { data: libraryData } = useSWR<{ game: games[] }>(
+    "/api/library",
+    fetcher,
+  );
+
+  // pick up to five games by status priority
+  const getTopGames = (): games[] => {
+    if (!libraryData?.game?.length) return [];
+
+    const playing = libraryData.game.filter((g) => g.status === "Playing");
+    const completed = libraryData.game.filter((g) => g.status === "Completed");
+    const onHold = libraryData.game.filter((g) => g.status === "On Hold");
+    const notStarted = libraryData.game.filter(
+      (g) => g.status === "Not Started",
+    );
+
+    return [...playing, ...completed, ...onHold, ...notStarted].slice(0, 5);
+  };
+
+  const displayGames = getTopGames();
 
   return (
     <div className="min-h-screen bg-purple-400">
@@ -221,12 +222,31 @@ export default function ProfilePage() {
             <div className="bg-white rounded-lg shadow-md p-6 mb-8">
               <div className="flex flex-col md:flex-row items-start gap-8">
                 <div className="w-full md:w-1/3 flex flex-col items-center">
-                  <div className="relative w-40 h-40 rounded-full overflow-hidden mb-4 border-4 border-purple-600">
+                  <div className="relative w-40 h-40 rounded-full overflow-hidden mb-4 border-4 border-purple-600 group">
                     <Image
-                      src={data?.user?.image || cat}
+                      src={localProfileImage || data?.user?.image || cat}
                       alt={data?.user?.name || "Username"}
                       fill
                       className="object-cover"
+                    />
+
+                    <div
+                      className="absolute inset-0 flex items-center justify-center
+               bg-black bg-opacity-50 opacity-0 group-hover:opacity-100
+               transition-opacity cursor-pointer"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <span className="text-white font-semibold">
+                        Change Image
+                      </span>
+                    </div>
+
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleProfileImageChange}
                     />
                   </div>
                   <h2 className="text-2xl font-bold text-purple-900 mb-2">
@@ -392,6 +412,30 @@ export default function ProfilePage() {
                                     Please pick the specific games you would
                                     like to have achievements added.
                                   </DialogDescription>
+                                  {/* sort selector */}
+                                  <div className="flex items-center gap-2 mt-2">
+                                    <label
+                                      htmlFor="gameSort"
+                                      className="text-sm text-gray-700"
+                                    >
+                                      Sort:
+                                    </label>
+                                    <select
+                                      id="gameSort"
+                                      className="border rounded px-2 py-1 text-black"
+                                      value={gameSort}
+                                      onChange={(e) =>
+                                        setGameSort(e.target.value as any)
+                                      }
+                                    >
+                                      <option value="alpha">A → Z</option>
+                                      <option value="alphaDesc">Z → A</option>
+                                      <option value="recent">
+                                        Most&nbsp;Recent
+                                      </option>
+                                      <option value="oldest">Oldest</option>
+                                    </select>
+                                  </div>
                                   {listOfGames?.error ? (
                                     <div>
                                       NO GAMES, PLEASE MAKE SURE YOUR ACCOUNT IS
@@ -401,31 +445,79 @@ export default function ProfilePage() {
                                     <div className="overflow-scroll max-w-full max-h-[600px]">
                                       {listOfGames?.games?.[
                                         link.externalPlatformUserName
-                                      ]?.map((game: games) => (
-                                        <div
-                                          key={game.gameName}
-                                          className=" py-[1px]"
-                                        >
-                                          <div className="flex flex-row justify-between items-center rounded bg-gray-200 py-2">
-                                            <div className="text-nowrap font-bold hover:underline">
-                                              {game.gameName}
+                                      ]
+                                        ?.slice()
+                                        .sort((a: games, b: games) => {
+                                          switch (gameSort) {
+                                            case "alphaDesc":
+                                              return b.gameName.localeCompare(
+                                                a.gameName,
+                                                undefined,
+                                                {
+                                                  sensitivity: "base",
+                                                },
+                                              );
+                                            case "recent":
+                                              return (
+                                                (b.updatedAt
+                                                  ? new Date(
+                                                      b.updatedAt,
+                                                    ).getTime()
+                                                  : 0) -
+                                                (a.updatedAt
+                                                  ? new Date(
+                                                      a.updatedAt,
+                                                    ).getTime()
+                                                  : 0)
+                                              );
+                                            case "oldest":
+                                              return (
+                                                (a.updatedAt
+                                                  ? new Date(
+                                                      a.updatedAt,
+                                                    ).getTime()
+                                                  : 0) -
+                                                (b.updatedAt
+                                                  ? new Date(
+                                                      b.updatedAt,
+                                                    ).getTime()
+                                                  : 0)
+                                              );
+                                            default: // "alpha"
+                                              return a.gameName.localeCompare(
+                                                b.gameName,
+                                                undefined,
+                                                {
+                                                  sensitivity: "base",
+                                                },
+                                              );
+                                          }
+                                        })
+                                        .map((game: games) => (
+                                          <div
+                                            key={game.gameName}
+                                            className=" py-[1px]"
+                                          >
+                                            <div className="flex flex-row justify-between items-center rounded bg-gray-200 py-2">
+                                              <div className="text-nowrap font-bold hover:underline">
+                                                {game.gameName}
+                                              </div>
+                                              <button
+                                                type="button"
+                                                onClick={() =>
+                                                  handleAchievementAdd(
+                                                    game.externalAppId as string,
+                                                    link.externalPlatformId,
+                                                    game.gameName,
+                                                  )
+                                                }
+                                                className="text-nowrap bg-green-600 text-white px-2 py-2 rounded-md hover:bg-green-700 transition"
+                                              >
+                                                Add Achievements
+                                              </button>
                                             </div>
-                                            <button
-                                              type="button"
-                                              onClick={() =>
-                                                handleAchievementAdd(
-                                                  game.externalAppId as string,
-                                                  link.externalPlatformId,
-                                                  game.gameName,
-                                                )
-                                              }
-                                              className="text-nowrap bg-green-600 text-white px-2 py-2 rounded-md hover:bg-green-700 transition"
-                                            >
-                                              Add Achievements
-                                            </button>
                                           </div>
-                                        </div>
-                                      ))}
+                                        ))}
                                     </div>
                                   )}
                                 </DialogHeader>
@@ -563,45 +655,83 @@ export default function ProfilePage() {
               <h2 className="text-2xl font-bold text-purple-900 mb-4">
                 Top 5 Games
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                {topGames.map((game) => (
-                  <div
-                    key={game.id}
-                    className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105"
-                  >
-                    <div className="relative h-40 w-full">
-                      <Image
-                        src={game.coverUrl}
-                        alt={game.title}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="p-4">
-                      <h3
-                        className="font-bold text-purple-800 text-lg mb-1 truncate"
-                        title={game.title}
-                      >
-                        {game.title}
-                      </h3>
-                      <p className="text-gray-600 text-sm mb-2">
-                        {game.platform}
-                      </p>
-
-                      <div className="flex justify-between text-sm text-gray-700">
-                        <span>{game.playtime} hours</span>
-                        <span className="text-purple-600">
-                          {"★".repeat(game.rating)}
-                        </span>
+              {displayGames.length ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                  {displayGames.map((game) => (
+                    <div
+                      key={game.id}
+                      className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105"
+                    >
+                      {/* cover */}
+                      <div className="relative h-40 w-full">
+                        {game.gamePicture ? (
+                          <Image
+                            src={game.gamePicture}
+                            alt={game.gameName}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center bg-gray-200">
+                            <p className="text-gray-500 text-center">
+                              NO&nbsp;PICTURE&nbsp;AVAILABLE
+                            </p>
+                          </div>
+                        )}
                       </div>
-                      <p className="text-xs text-gray-500 mt-2">
-                        Last played:{" "}
-                        {new Date(game.lastPlayed).toLocaleDateString()}
-                      </p>
+
+                      {/* details */}
+                      <div className="p-4">
+                        <h3
+                          className="font-bold text-purple-800 text-lg mb-1 truncate"
+                          title={game.gameName}
+                        >
+                          {game.gameName}
+                        </h3>
+                        <p className="text-gray-600 text-sm mb-2">
+                          {game.platform}
+                        </p>
+
+                        <div className="flex justify-between items-center text-sm">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs ${
+                              game.status === "Completed"
+                                ? "bg-green-200 text-green-800"
+                                : game.status === "Playing"
+                                  ? "bg-blue-200  text-blue-800"
+                                  : game.status === "On Hold"
+                                    ? "bg-yellow-200 text-yellow-800"
+                                    : "bg-gray-200  text-gray-800"
+                            }`}
+                          >
+                            {game.status}
+                          </span>
+
+                          {game.externalAppId && (
+                            <a
+                              href={`https://store.steampowered.com/app/${game.externalAppId}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline flex items-center gap-1"
+                            >
+                              <svg className="w-3 h-3">{steamIcon}</svg>
+                              <span>Steam</span>
+                            </a>
+                          )}
+                        </div>
+                      </div>
                     </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-yellow-100 rounded-lg p-4">
+                  <div className="h-32 w-full flex items-center justify-center">
+                    <p className="text-gray-900 text-xl text-center">
+                      No games in your library yet. Add some from the Game Form!
+                    </p>
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
             </div>
 
             {/* Achievements Section */}
