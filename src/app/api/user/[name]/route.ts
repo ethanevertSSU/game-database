@@ -1,14 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { getLastedPlayedSteamGame } from "@/app/api/steam/steam";
+import { auth } from "@/app/lib/auth";
+import { headers } from "next/headers";
 
 const prisma = new PrismaClient();
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ name: string }> },
 ) {
-  const { name } = await params;
   console.log(req);
+  const { name } = await params;
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  const username = session?.user.name ?? " ";
+
+  const sessionUser = await prisma.user.findFirst({
+    where: {
+      name: username,
+    },
+  });
 
   //user id
   const user = await prisma.user.findFirst({
@@ -17,8 +31,31 @@ export async function GET(
     },
   });
 
-  if (!user)
-    return NextResponse.json({ error: "no user found" }, { status: 404 });
+  const allUsers = await prisma.user.findMany();
+
+  if (!user) return NextResponse.json({ allUsers: allUsers }, { status: 404 });
+
+  //for friends
+  const followingList = await prisma.friends.findMany({
+    where: {
+      userId: sessionUser?.id,
+    },
+  });
+
+  const following = await prisma.friends.findMany({
+    where: {
+      userId: user.id,
+    },
+  });
+
+  const followers = await prisma.friends.findMany({
+    where: {
+      followingId: user.id,
+    },
+  });
+
+  const numFollowing = following.length;
+  const numfollowers = followers.length;
 
   //for number of games in library
   const games = await prisma.game.findMany({
@@ -77,6 +114,7 @@ export async function GET(
   return NextResponse.json(
     {
       user: {
+        id: user.id,
         name: user.name,
         image: user.image,
         memberSince: user.createdAt,
@@ -86,6 +124,9 @@ export async function GET(
       achievements: achievements,
       numGames: numGames,
       numAchievements: achievements.length,
+      numFollowing: numFollowing,
+      numfollowers: numfollowers,
+      followingList: followingList,
       ...(lastSteamGamePlayed && { lastSteamGamePlayed }),
     },
     { status: 200 },

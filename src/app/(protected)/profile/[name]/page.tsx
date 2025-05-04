@@ -1,11 +1,12 @@
 "use client";
 
-import React, { use } from "react";
-import useSWR from "swr";
+import React, { use, useState } from "react";
+import useSWR, { mutate } from "swr";
 import Header from "@/components/Header";
 import Image from "next/image";
 import cat from "../../../../../public/cat.jpg";
 import { steamIcon } from "../../../../../public/steamIcon";
+import { toast, Toaster } from "sonner";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -16,6 +17,19 @@ type link = {
   platformName: string;
 };
 
+type friend = {
+  id: string;
+  userId: string;
+  followingId: string;
+};
+
+type user = {
+  id: string;
+  name: string;
+  image: string;
+  bio: string;
+};
+
 export default function Page({
   params,
 }: {
@@ -24,13 +38,29 @@ export default function Page({
   const resolvedParams = use(params);
   const { name } = resolvedParams;
   const { data, error, isLoading } = useSWR(`/api/user/${name}`, fetcher);
+  const { data: user, error: userError } = useSWR(`/api/session/`, fetcher);
+
+  const [isStateLoading, setIsStateLoading] = useState(false);
+
   if (error) return <div>Error loading data</div>;
+  if (userError) return <div>Error loading user data</div>;
+
+  const friendsList = data?.followingList ?? [];
+  console.log(friendsList);
+
+  const allUsers = data?.allUsers;
+  const sessionUsername = user?.username;
+  // console.log("session: ", sessionUsername);
+  const username = data?.user?.name;
+  const userId = data?.user?.id;
+  // console.log("user: ", username);
+  console.log(allUsers);
+
+  const isSearchNameSession = sessionUsername === username;
 
   const gamePicture = `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${data?.lastSteamGamePlayed?.appId}/header.jpg?`;
 
   const userDate = data?.user?.memberSince;
-
-  console.log(userDate);
 
   const date = new Date(userDate);
 
@@ -38,6 +68,52 @@ export default function Page({
   const day = date.getDate();
   const year = date.getFullYear();
   const formattedDate = `${month}/${day}/${year}`;
+
+  const handleFriendAdd = async () => {
+    setIsStateLoading(true);
+    try {
+      const response = await fetch(`/api/manageFriend/${name}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+
+      if (!response.ok) {
+        toast.error(`Failed to add friend ${username}`);
+        return;
+      }
+
+      await mutate(`/api/user/${name}`);
+      toast.success(`Successfully added friend: ${username}`);
+      setIsStateLoading(false);
+    } catch (error) {
+      console.error("Error adding friend:", error);
+      toast.error(`Error adding friend`);
+    }
+  };
+
+  const handleFriendRemove = async () => {
+    setIsStateLoading(true);
+    try {
+      const response = await fetch(`/api/manageFriend/${name}/`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+
+      if (!response.ok) {
+        toast.error(`Failed to remove friend ${username}`);
+        return;
+      }
+
+      await mutate(`/api/user/${name}`);
+      toast.success(`Successfully removed friend: ${username}`);
+      setIsStateLoading(false);
+    } catch (error) {
+      console.error("Error removing friend:", error);
+      toast.error(`Error removing friend`);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-purple-400">
@@ -49,15 +125,57 @@ export default function Page({
         <div className="flex flex-col min-h-screen">
           <Header />
           {!data.user ? (
-            <div className="flex flex-1 items-center justify-center">
-              <div className=" text-3xl text-center">
+            <div className="flex flex-col justify-start w-full ">
+              <div className="pt-3 text-3xl text-center">
                 User <p className="font-bold inline">&ldquo;{name}&ldquo;</p>{" "}
                 not found, please search again.
                 <div className="pt-3">
                   <p className="font-bold inline">NOTE</p>: Usernames Are Case
                   Sensitive.
                 </div>
+                <br />
+                <div className="font-bold">
+                  Here is a list of other Profiles To Checkout!
+                </div>
               </div>
+              {data.allUsers ? (
+                <div className="flex flex-col h-[1000px] items-center gap-2 p-4 overflow-y-auto scrollbar-hide">
+                  {data.allUsers.map((user: user) => (
+                    <div
+                      key={user.id}
+                      className="flex bg-white items-center w-full gap-4 p-2 border border-gray-200 rounded-md shadow-border"
+                    >
+                      <div className="relative w-28 h-28 rounded-full overflow-hidden border-2 border-purple-600">
+                        <Image
+                          src={user.image || cat}
+                          alt={user.name || "Username"}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <a href={`/profile/${user.name}`}>
+                          <h2 className="text-xl   font-semibold">
+                            {user.name}
+                          </h2>
+                        </a>
+                        <p className="text-sm text-gray-600 truncate max-w-xs">
+                          {user.bio}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className=" text-3xl text-center">
+                  User <p className="font-bold inline">&ldquo;{name}&ldquo;</p>{" "}
+                  not found, please search again.
+                  <div className="pt-3">
+                    <p className="font-bold inline">NOTE</p>: Usernames Are Case
+                    Sensitive.
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="container mx-auto px-4 py-8">
@@ -72,9 +190,44 @@ export default function Page({
                         className="object-cover"
                       />
                     </div>
-                    <h2 className="text-2xl font-bold text-purple-900 mb-2">
-                      {data?.user?.name}
-                    </h2>
+                    <div className="flex flex-col items-center">
+                      <h2 className="text-2xl font-bold text-purple-900 mb-2">
+                        {data?.user?.name}
+                      </h2>
+                      {isSearchNameSession ? (
+                        <h1 className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition">
+                          This is your account
+                        </h1>
+                      ) : (
+                        <div>
+                          {!friendsList.find(
+                            (friend: friend) => friend.followingId === userId,
+                          ) ? (
+                            <button
+                              onClick={() => handleFriendAdd()}
+                              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+                            >
+                              {isStateLoading ? (
+                                <div>Adding Friend...</div>
+                              ) : (
+                                <div>Add Friend</div>
+                              )}
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleFriendRemove()}
+                              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
+                            >
+                              {isStateLoading ? (
+                                <div>Removing Friend...</div>
+                              ) : (
+                                <div>Remove Friend</div>
+                              )}
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
                     <p className="text-gray-600 mb-4">
                       Member since {formattedDate}
                     </p>
@@ -87,11 +240,28 @@ export default function Page({
                         </p>
                         <p className="text-purple-600 text-sm">Games</p>
                       </div>
-                      <div className="bg-purple-100 p-4 rounded-b-lg">
+                      <div className="bg-purple-100 p-4 border-b-2 border-purple-300">
                         <p className="text-purple-800 font-bold text-2xl">
                           {data?.numAchievements || 0}
                         </p>
                         <p className="text-purple-600 text-sm">Achievements</p>
+                      </div>
+                      <div className="flex flex-row justify-around items-stretch bg-purple-100 p-4 border-b-2 border-purple-300 text-center">
+                        <div className="flex flex-col justify-center bg-purple-100 p-4 rounded-b-lg text-center flex-1">
+                          <p className="text-purple-800 font-bold text-2xl">
+                            {data?.numFollowing || 0}
+                          </p>
+                          <p className="text-purple-600 text-sm">Following</p>
+                        </div>
+
+                        <div className="w-px bg-purple-300" />
+
+                        <div className="flex flex-col justify-center bg-purple-100 p-4 rounded-b-lg text-center flex-1">
+                          <p className="text-purple-800 font-bold text-2xl">
+                            {data?.numfollowers || 0}
+                          </p>
+                          <p className="text-purple-600 text-sm">Followers</p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -107,7 +277,7 @@ export default function Page({
                       {data?.user?.bio}
                     </div>
                     <div className="inline-flex flex-col">
-                      <div className="font-bold">Linked Accounts: </div>
+                      <div className="font-bold">Linked Accounts:</div>
                       {data?.linkedAccounts?.length == 0 ? (
                         <div className="font-bold">NO LINKED ACCOUNTS</div>
                       ) : (
@@ -256,6 +426,7 @@ export default function Page({
           )}
         </div>
       )}
+      <Toaster />
     </div>
   );
 }
