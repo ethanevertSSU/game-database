@@ -410,7 +410,7 @@ const GameList = () => {
                           >
                             <button className="bg-white text-left w-full h-full rounded-lg shadow-md overflow-hidden transition-transform">
                               <div className="p-4">
-                                <div className="relative h-48 w-full group">
+                                <div className="relative h-40 w-full group">
                                   {localGameImages[game.id] ||
                                   game.gamePicture ? (
                                     <>
