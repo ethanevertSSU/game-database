@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import {
   HoverCard,
@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import useSWR from "swr";
 import Image from "next/image";
+import steamIcon from "../../../../public/steam_logo.png";
 import { Toaster } from "@/components/ui/sonner";
 import { FaStar } from "react-icons/fa";
 import {
@@ -38,12 +39,41 @@ type Game = {
   gameType: string;
   Notes: string | null;
   gamePicture: string | null;
+  externalAppId?: string | null;
   status: string;
 };
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const GameList = () => {
+  const [localGameImages, setLocalGameImages] = useState<
+    Record<string, string>
+  >({});
+  useEffect(() => {
+    const saved: Record<string, string> = {};
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith("game_image_")) {
+        const id = key.replace("game_image_", "");
+        saved[id] = localStorage.getItem(key)!;
+      }
+    });
+    setLocalGameImages(saved);
+  }, []);
+  const handleGameImageChange = (
+    gameId: string,
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const dataUrl = reader.result as string;
+      setLocalGameImages((prev) => ({ ...prev, [gameId]: dataUrl }));
+      localStorage.setItem(`game_image_${gameId}`, dataUrl);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const [searchTerm, setSearchTerm] = useState("");
   // For sorting games
   type sortedOrder = "asc" | "desc" | "status-asc" | "status-desc";
@@ -329,7 +359,7 @@ const GameList = () => {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-4">
                 <AnimatePresence>
                   {filteredGames.map((game) => (
                     <motion.div
@@ -349,7 +379,7 @@ const GameList = () => {
                     >
                       <HoverCard key={game.id}>
                         <div
-                          style={{ width: "290px", height: "265px" }}
+                          style={{ width: "300px", height: "320px" }}
                           className={`group p-[3px] rounded-lg bg-gradient-to-b transition-all duration-300 ease-in-out transform hover:scale-105 ${
                             game.status === "Completed"
                               ? "from-green-400 to-green-600 hover:shadow-[0_0_15px_rgba(34,197,94,0.7)]"
@@ -380,19 +410,66 @@ const GameList = () => {
                           >
                             <button className="bg-white text-left w-full h-full rounded-lg shadow-md overflow-hidden transition-transform">
                               <div className="p-4">
-                                <div className="relative h-40 w-full">
-                                  {game.gamePicture ? (
-                                    <Image
-                                      src={game.gamePicture}
-                                      alt={game.gameName}
-                                      fill
-                                      className={`${game?.platform?.includes("Steam") ? "rounded w-[300px] h-[250px] shadow-2xl" : " object-scale-down w-[300px] h-[250px]"}`}
-                                    />
+                                <div className="relative h-48 w-full group">
+                                  {localGameImages[game.id] ||
+                                  game.gamePicture ? (
+                                    <>
+                                      <Image
+                                        src={
+                                          localGameImages[game.id] ||
+                                          game.gamePicture ||
+                                          "../../../../public/cat.jpg"
+                                        }
+                                        alt={game.gameName}
+                                        fill
+                                        className={`${
+                                          game.platform.includes("Steam")
+                                            ? "rounded w-[300px] h-[200px] shadow-2xl"
+                                            : "object-scale-down w-[300px] h-[200px]"
+                                        }`}
+                                      />
+                                      <div
+                                        className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                        onClick={() =>
+                                          document
+                                            .getElementById(
+                                              `file-input-${game.id}`,
+                                            )
+                                            ?.click()
+                                        }
+                                      >
+                                        <span className="text-white font-semibold">
+                                          Change Image
+                                        </span>
+                                      </div>
+                                    </>
                                   ) : (
-                                    <p className="text-center pt-9 text-gray-500">
-                                      NO PICTURE AVAILABLE
-                                    </p>
+                                    <div
+                                      className="h-full w-full flex items-center justify-center bg-gray-200 cursor-pointer"
+                                      onClick={() =>
+                                        document
+                                          .getElementById(
+                                            `file-input-${game.id}`,
+                                          )
+                                          ?.click()
+                                      }
+                                    >
+                                      <p className="text-center text-gray-500">
+                                        NO PICTURE AVAILABLE
+                                        <br />
+                                        Click to add
+                                      </p>
+                                    </div>
                                   )}
+                                  <input
+                                    id={`file-input-${game.id}`}
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) =>
+                                      handleGameImageChange(game.id, e)
+                                    }
+                                  />
                                 </div>
                                 <div className="flex flex-col justify-start">
                                   <p
@@ -408,6 +485,24 @@ const GameList = () => {
                                     <span>|</span>
                                     <span>{game.gameType}</span>
                                   </p>
+                                  {game.externalAppId && (
+                                    <Link
+                                      href={`https://store.steampowered.com/app/${game.externalAppId}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="flex items-center gap-1 text-blue-600 hover:underline mt-1"
+                                    >
+                                      <Image
+                                        src={steamIcon}
+                                        alt="Steam"
+                                        width={14}
+                                        height={14}
+                                      />
+                                      <span className="text-xs">
+                                        View on Steam
+                                      </span>
+                                    </Link>
+                                  )}
                                   <div className="flex items-center gap-2 mt-1 justify-end">
                                     <span
                                       className={`text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 ${statusPillStyles[game.status]}`}
