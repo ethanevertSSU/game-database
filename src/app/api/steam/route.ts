@@ -7,6 +7,53 @@ import { headers } from "next/headers";
 const returnURL = process.env.BETTER_AUTH_URL;
 const prisma = new PrismaClient();
 
+async function fetchGenresFromIGDB(
+  appIds: string[],
+): Promise<Record<string, string[]>> {
+  // const IGDB_AUTH_URL = "https://id.twitch.tv/oauth2/token";
+  const IGDB_GAMES_URL = "https://api.igdb.com/v4/external_games";
+  const clientId = process.env.IGDB_CLIENT_ID!;
+
+  const access_token = process.env.IGDB_AUTH_TOKEN;
+
+  const genreMap: Record<string, string[]> = {};
+
+  // Break into chunks of 400 appIds at a time (IGDB API limit)
+  for (let i = 0; i < appIds.length; i += 400) {
+    const chunk = appIds.slice(i, i + 400);
+    const uidList = chunk.map((id) => `"${id}"`).join(", ");
+    const query = `fields uid, game.genres.name; where uid = (${uidList}) & category = 1; limit 400;`;
+
+    const igdbResponse = await fetch(IGDB_GAMES_URL, {
+      method: "POST",
+      headers: {
+        "Client-ID": clientId,
+        Authorization: `Bearer ${access_token}`,
+        "Content-Type": "text/plain",
+      },
+      body: query,
+    });
+
+    if (!igdbResponse.ok) {
+      throw new Error("Failed to fetch games from IGDB");
+    }
+
+    const igdbResults = await igdbResponse.json();
+
+    console.log("igdbResults: ", igdbResults);
+
+    for (const result of igdbResults) {
+      if (result.uid && result.game?.genres?.length) {
+        genreMap[result.uid] = result.game.genres.map(
+          (g: { name: string }) => g.name,
+        );
+      }
+    }
+  }
+
+  return genreMap;
+}
+
 export async function GET(req: NextRequest) {
   // Parse the query parameters from Steam OpenID response
   const { searchParams } = new URL(req.url);
@@ -65,26 +112,37 @@ export async function GET(req: NextRequest) {
           },
         });
 
-        gameInfo.games.map(async (game) => {
-          const gameName = game.name;
-          const gamePlatform = `Steam (PC): ${steamUsername}`;
-          const physOrDig = "digital";
-          const gamePicture = `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${game.appid}/header.jpg?`;
-          const appId = game.appid.toString();
+        const appIds = gameInfo.games.map((g) => g.appid.toString());
+        const genreMap = await fetchGenresFromIGDB(appIds);
 
-          await prisma.game.create({
-            data: {
-              gameName: gameName,
-              platform: gamePlatform,
-              gameType: physOrDig,
-              gamePicture: gamePicture,
-              externalAppId: appId,
-              user: {
-                connect: { id: user.id },
+        await Promise.all(
+          gameInfo.games.map(async (game) => {
+            const gameName = game.name;
+            const gamePlatform = `Steam (PC): ${steamUsername}`;
+            const physOrDig = "digital";
+            const gamePicture = `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${game.appid}/header.jpg?`;
+            const appId = game.appid.toString();
+            const genreTags = genreMap[appId]
+              ? genreMap[appId]
+                  .map((g) => `#${g.replace(/\s+/g, "")}`)
+                  .join(" ")
+              : "";
+
+            await prisma.game.create({
+              data: {
+                gameName: gameName,
+                platform: gamePlatform,
+                gameType: physOrDig,
+                gamePicture: gamePicture,
+                externalAppId: appId,
+                Notes: genreTags,
+                user: {
+                  connect: { id: user.id },
+                },
               },
-            },
-          });
-        });
+            });
+          }),
+        );
 
         console.log("steam account linked", addSteamAccount);
       } else {
