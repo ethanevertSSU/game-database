@@ -10,7 +10,7 @@ const prisma = new PrismaClient();
 async function fetchGenresFromIGDB(
   appIds: string[],
 ): Promise<Record<string, string[]>> {
-  const IGDB_AUTH_URL = "https://id.twitch.tv/oauth2/token";
+  // const IGDB_AUTH_URL = "https://id.twitch.tv/oauth2/token";
   const IGDB_GAMES_URL = "https://api.igdb.com/v4/external_games";
   const clientId = process.env.IGDB_CLIENT_ID!;
 

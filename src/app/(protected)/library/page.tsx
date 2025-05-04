@@ -279,14 +279,14 @@ const GameList = () => {
                 >
                   📊 View Chart
                 </button>
-                  <button
-                      onClick={() => setIsGenreDialogOpen(true)}
-                      className="bg-white border rounded px-3 py-2 hover:bg-purple-100 font-semibold"
-                  >
-                      🎯 Genres
-                  </button>
+                <button
+                  onClick={() => setIsGenreDialogOpen(true)}
+                  className="bg-white border rounded px-3 py-2 hover:bg-purple-100 font-semibold"
+                >
+                  🎯 Genres
+                </button>
 
-                  <button
+                <button
                   onClick={handleRandomPick}
                   className="w-full bg-white border rounded px-3 py-2 hover:bg-purple-100 font-semibold"
                 >
