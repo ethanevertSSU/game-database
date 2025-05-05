@@ -1,6 +1,6 @@
 "use client";
 import Header from "@/components/Header";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 import React from "react";
 
 type link = {
@@ -10,31 +10,13 @@ type link = {
   platformName: string;
 };
 
-type returnURL = {
-  url: string;
-};
-
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function Page() {
   const { data, isLoading } = useSWR("/api/profile", fetcher);
 
-  const { data: returnURL } = useSWR<returnURL>("api/url", fetcher);
-
-  const { data: listOfLinkedAccounts, isLoading: loadingLinkedAccounts } =
-    useSWR<{ linkedAccounts: link[] }>("/api/linkedaccounts", fetcher);
-
-  const { data: mostRecentGame, isLoading: loadingRecentGame } = useSWR(
-    "/api/recentGame",
-    fetcher,
-  );
-  const linkedAccountNames =
-    listOfLinkedAccounts?.linkedAccounts.map(
-      (link) => link.externalPlatformUserName,
-    ) || [];
-
-  const { data: listOfGames } = useSWR(
-    `/api/getGames/${linkedAccountNames}`,
+  const { data: listOfLinkedAccounts } = useSWR<{ linkedAccounts: link[] }>(
+    "/api/linkedaccounts",
     fetcher,
   );
 

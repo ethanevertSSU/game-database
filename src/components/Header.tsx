@@ -91,6 +91,13 @@ export default function Header() {
               Game Library
             </Link>
             <Link
+              onClick={() => handleLinkClick("/achievements")}
+              href="/achievements"
+              className="rounded-full bg-purple-700 hover:bg-purple-600 text-white text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 flex items-center justify-center text-center whitespace-normal"
+            >
+              Achievements
+            </Link>
+            <Link
               onClick={() => handleLinkClick("/searchableForm")}
               href="/searchableForm"
               className="rounded-full bg-purple-700 hover:bg-purple-600 text-white text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 flex items-center justify-center text-center whitespace-normal"
