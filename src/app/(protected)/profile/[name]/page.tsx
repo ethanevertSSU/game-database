@@ -37,6 +37,14 @@ type user = {
   bio: string;
 };
 
+type game = {
+  id: string;
+  gameName: string;
+  platform: string;
+  gameType: string;
+  Notes: string;
+};
+
 export default function Page({
   params,
 }: {
@@ -135,10 +143,10 @@ export default function Page({
           <Dialog open={isGameDialogOpen} onOpenChange={setIsGameDialogOpen}>
             <DialogContent className="sm:max-w-2xl">
               <DialogHeader>
-                <DialogTitle>{username}'s Game Library</DialogTitle>
+                <DialogTitle>{username}&lsquo;s Game Library</DialogTitle>
               </DialogHeader>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto">
-                {data?.games?.map((game: any) => (
+                {data?.games?.map((game: game) => (
                   <div
                     key={game.id}
                     className="bg-white border rounded p-2 shadow-md text-sm"
