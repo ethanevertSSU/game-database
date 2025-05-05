@@ -261,15 +261,19 @@ export default function ProfilePage() {
                   <div className="flex flex-col w-full max-w-xs text-center">
                     <div className="bg-purple-100 p-4 rounded-t-lg border-b-2 border-purple-300  ">
                       <p className="text-purple-800 font-bold text-2xl">
-                        {data?.numGames || 0}
+                        <a href="/library">{data?.numGames || 0}</a>
                       </p>
-                      <p className="text-purple-600 text-sm">Games</p>
+                      <p className="text-purple-600 text-sm">
+                        <a href="/library">Games</a>
+                      </p>
                     </div>
                     <div className="bg-purple-100 p-4 border-b-2 border-purple-300">
                       <p className="text-purple-800 font-bold text-2xl">
-                        {data?.numAchievements || 0}
+                        <a href="/achievements">{data?.numAchievements || 0}</a>
                       </p>
-                      <p className="text-purple-600 text-sm">Achievements</p>
+                      <p className="text-purple-600 text-sm">
+                        <a href="/achievements">Achievements</a>
+                      </p>
                     </div>
                     <div className="flex flex-row justify-around items-stretch bg-purple-100 p-4 border-b-2 border-purple-300 text-center">
                       <div className="flex flex-col justify-center bg-purple-100 p-4 rounded-b-lg text-center flex-1">
@@ -659,7 +663,9 @@ export default function ProfilePage() {
 
             {/* Top Games Section */}
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-purple-900 mb-4">Games</h2>
+              <h2 className="text-2xl font-bold text-purple-900 mb-4">
+                <a href="/library">Games</a>
+              </h2>
               {displayGames.length ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                   {displayGames.map((game) => (
@@ -742,7 +748,7 @@ export default function ProfilePage() {
             {/* Achievements Section */}
             <div>
               <h2 className="text-2xl font-bold text-purple-900 mb-4">
-                Recent Achievements
+                <a href="/achievements">Recent Achievements</a>
               </h2>
               {data?.achievements.length === 0 ? (
                 <div className="bg-yellow-100 rounded-lg p-4">
