@@ -62,6 +62,15 @@ export async function GET(
     where: {
       userId: user.id,
     },
+    select: {
+      id: true,
+      gameName: true,
+      platform: true,
+      gameType: true,
+      Notes: true,
+      gamePicture: true,
+      status: true,
+    },
   });
 
   const numGames = games.length;
@@ -123,6 +132,7 @@ export async function GET(
       linkedAccounts: linkedAccounts,
       achievements: achievements,
       numGames: numGames,
+      games,
       numAchievements: achievements.length,
       numFollowing: numFollowing,
       numfollowers: numfollowers,
