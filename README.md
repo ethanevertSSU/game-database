@@ -1,5 +1,7 @@
 # game-database
 
+UPDATE 8/1: This website is no longer working with Google SSO since the access token is expired
+
 ## Best Practices
 1. **NEVER directly edit main, no matter what**
 2. **ALWAYS create a different branch when working on a task (I use [name]/[branch name] for a naming scheme**\
