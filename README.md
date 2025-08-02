@@ -6,7 +6,7 @@ UPDATE 8/1: This website is no longer working with Google SSO since the access t
 1. **NEVER directly edit main, no matter what**
 2. **ALWAYS create a different branch when working on a task (I use [name]/[branch name] for a naming scheme**\
    -ex) ethan/loginbackend
-3. **ALWAYS create a pull request so that we can review your code before sending it to production**\
+3. **ALWAYS create a pull request so that we can review your code before sending it to production**
 
 If you are not sure 100% about something, don't be afraid to ask questions in the discord
 -
